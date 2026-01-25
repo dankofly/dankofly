@@ -121,30 +121,6 @@ const generateWeeklyPlanInternal = async (user: UserProfile): Promise<WeeklyPlan
     - summary: Abschlussfazit.
   `;
 
-  // Schema as string types (proxy converts to Type enum)
-  const responseSchema = {
-    type: 'OBJECT',
-    properties: {
-      title: { type: 'STRING' },
-      strategy: { type: 'STRING' },
-      schedule: {
-        type: 'ARRAY',
-        items: {
-          type: 'OBJECT',
-          properties: {
-            day: { type: 'STRING' },
-            mix: { type: 'ARRAY', items: { type: 'STRING' } },
-            focus: { type: 'STRING' },
-            supplement: { type: 'STRING' },
-          },
-          required: ['day', 'mix', 'focus', 'supplement'],
-        },
-      },
-      summary: { type: 'STRING' },
-    },
-    required: ['title', 'strategy', 'schedule', 'summary'],
-  };
-
   try {
     const response = await fetch(GEMINI_PROXY_URL, {
       method: 'POST',
@@ -155,7 +131,6 @@ const generateWeeklyPlanInternal = async (user: UserProfile): Promise<WeeklyPlan
           temperature: 0.1,
           seed: generateSeed(user),
           responseMimeType: 'application/json',
-          responseSchema,
         },
       }),
     });

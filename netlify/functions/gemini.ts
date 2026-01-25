@@ -1,5 +1,5 @@
 import { Handler } from '@netlify/functions';
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 
 const MODEL = 'gemini-2.0-flash';
 
@@ -8,7 +8,6 @@ const MODEL = 'gemini-2.0-flash';
  * Prevents client-side API key exposure
  */
 export const handler: Handler = async (event) => {
-  // CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -16,7 +15,6 @@ export const handler: Handler = async (event) => {
     'Content-Type': 'application/json'
   };
 
-  // Handle preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers, body: '' };
   }
@@ -51,7 +49,7 @@ export const handler: Handler = async (event) => {
 
     const ai = new GoogleGenAI({ apiKey });
 
-    // Build config with schema support
+    // Build simple config without schema (let model return JSON naturally)
     const requestConfig: Record<string, unknown> = {
       temperature: config?.temperature ?? 0.1,
     };
@@ -62,11 +60,6 @@ export const handler: Handler = async (event) => {
 
     if (config?.responseMimeType) {
       requestConfig.responseMimeType = config.responseMimeType;
-    }
-
-    // Reconstruct responseSchema with Type enum
-    if (config?.responseSchema) {
-      requestConfig.responseSchema = reconstructSchema(config.responseSchema);
     }
 
     const response = await ai.models.generateContent({
@@ -100,36 +93,3 @@ export const handler: Handler = async (event) => {
     };
   }
 };
-
-/**
- * Reconstruct schema with proper Type enum values
- */
-function reconstructSchema(schema: Record<string, unknown>): Record<string, unknown> {
-  const typeMap: Record<string, unknown> = {
-    'STRING': Type.STRING,
-    'NUMBER': Type.NUMBER,
-    'BOOLEAN': Type.BOOLEAN,
-    'OBJECT': Type.OBJECT,
-    'ARRAY': Type.ARRAY,
-  };
-
-  const result: Record<string, unknown> = { ...schema };
-
-  if (typeof schema.type === 'string' && typeMap[schema.type]) {
-    result.type = typeMap[schema.type];
-  }
-
-  if (schema.properties && typeof schema.properties === 'object') {
-    const props: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(schema.properties as Record<string, unknown>)) {
-      props[key] = reconstructSchema(value as Record<string, unknown>);
-    }
-    result.properties = props;
-  }
-
-  if (schema.items && typeof schema.items === 'object') {
-    result.items = reconstructSchema(schema.items as Record<string, unknown>);
-  }
-
-  return result;
-}
