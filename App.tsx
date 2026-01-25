@@ -217,10 +217,20 @@ const App: React.FC = () => {
         <p>{txt.footerDisclaimer}</p>
         <p className="mt-2">{txt.footerNote}</p>
         <p className="mt-6">
-            <a 
-                href="https://hypeakz.io/" 
-                target="_blank" 
-                rel="noopener noreferrer" 
+          2die4 Live Foods • NutriPlan AI • <a
+            href="https://www.2die4livefoods.com/pages/impressum"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-brand-accent transition-colors underline"
+          >
+            Impressum
+          </a>
+        </p>
+        <p className="mt-2">
+            <a
+                href="https://hypeakz.io/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="font-bold hover:text-brand-accent transition-colors"
             >
                 App by HYPEAKZ.IO
