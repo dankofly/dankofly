@@ -1,9 +1,9 @@
-import { GoogleGenAI, Type } from "@google/genai";
 import { getNutData, RDA } from '../constants';
 import { UserProfile, WeeklyPlan } from '../types';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1000;
+const GEMINI_PROXY_URL = '/.netlify/functions/gemini';
 
 /**
  * Utility: Retry logic with exponential backoff
@@ -14,7 +14,7 @@ const retryWithBackoff = async <T>(
   delayMs: number = RETRY_DELAY_MS
 ): Promise<T> => {
   let lastError: Error | undefined;
-  
+
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       return await fn();
@@ -27,7 +27,7 @@ const retryWithBackoff = async <T>(
       }
     }
   }
-  
+
   throw lastError || new Error('Max retries exceeded');
 };
 
@@ -58,14 +58,6 @@ export const generateWeeklyPlan = async (user: UserProfile): Promise<WeeklyPlan>
 };
 
 const generateWeeklyPlanInternal = async (user: UserProfile): Promise<WeeklyPlan> => {
-  // Always initialize right before use as per Gemini API guidelines
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    throw new Error("Missing API Key. Please ensure process.env.API_KEY is configured.");
-  }
-  
-  const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-3-flash-preview';
   const nutData = getNutData(user.language);
   const nutContext = JSON.stringify(nutData);
   const rdaContext = JSON.stringify(RDA);
@@ -129,56 +121,68 @@ const generateWeeklyPlanInternal = async (user: UserProfile): Promise<WeeklyPlan
     - summary: Abschlussfazit.
   `;
 
-  try {
-    const response = await ai.models.generateContent({
-      model: model,
-      contents: prompt,
-      config: {
-        temperature: 0.1, 
-        seed: generateSeed(user),
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
+  // Schema as string types (proxy converts to Type enum)
+  const responseSchema = {
+    type: 'OBJECT',
+    properties: {
+      title: { type: 'STRING' },
+      strategy: { type: 'STRING' },
+      schedule: {
+        type: 'ARRAY',
+        items: {
+          type: 'OBJECT',
           properties: {
-            title: { type: Type.STRING },
-            strategy: { type: Type.STRING },
-            schedule: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  day: { type: Type.STRING },
-                  mix: { type: Type.ARRAY, items: { type: Type.STRING } },
-                  focus: { type: Type.STRING },
-                  supplement: { type: Type.STRING },
-                },
-                required: ["day", "mix", "focus", "supplement"],
-              },
-            },
-            summary: { type: Type.STRING },
+            day: { type: 'STRING' },
+            mix: { type: 'ARRAY', items: { type: 'STRING' } },
+            focus: { type: 'STRING' },
+            supplement: { type: 'STRING' },
           },
-          required: ["title", "strategy", "schedule", "summary"],
+          required: ['day', 'mix', 'focus', 'supplement'],
         },
       },
+      summary: { type: 'STRING' },
+    },
+    required: ['title', 'strategy', 'schedule', 'summary'],
+  };
+
+  try {
+    const response = await fetch(GEMINI_PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt,
+        config: {
+          temperature: 0.1,
+          seed: generateSeed(user),
+          responseMimeType: 'application/json',
+          responseSchema,
+        },
+      }),
     });
 
-    if (!response.text) throw new Error("Empty response from AI model.");
-    
-    let jsonText = response.text.trim();
-    // Strip markdown if present
-    if (jsonText.includes("```")) {
-        const match = jsonText.match(/```(?:json)?([\s\S]*?)```/);
-        if (match) jsonText = match[1].trim();
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `API request failed: ${response.status}`);
     }
-    
+
+    const data = await response.json();
+    if (!data.text) throw new Error('Empty response from AI model.');
+
+    let jsonText = data.text.trim();
+    // Strip markdown if present
+    if (jsonText.includes('```')) {
+      const match = jsonText.match(/```(?:json)?([\s\S]*?)```/);
+      if (match) jsonText = match[1].trim();
+    }
+
     try {
-        return JSON.parse(jsonText) as WeeklyPlan;
+      return JSON.parse(jsonText) as WeeklyPlan;
     } catch (parseError) {
-        console.error("JSON Parse Error. Content:", jsonText);
-        throw new Error("Failed to parse the nutrition plan structure.");
+      console.error('JSON Parse Error. Content:', jsonText);
+      throw new Error('Failed to parse the nutrition plan structure.');
     }
   } catch (error) {
-    console.error("Algorithm Error:", error);
+    console.error('Algorithm Error:', error);
     throw error;
   }
 };

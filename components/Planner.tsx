@@ -3,9 +3,9 @@ import { UserProfile, WeeklyPlan, DayPlan, Language, Nutrients } from '../types'
 import { getNutData, APP_CONTENT } from '../constants';
 import { generateWeeklyPlan } from '../services/geminiService';
 import { dbService, getProfileHash } from '../services/dbService';
-import { validateUserProfile, sanitizeUserProfile } from '../services/validationService';
+import { validateUserProfile } from '../services/validationService';
 import NutrientChart from './NutrientChart';
-import { Brain, Loader2, CalendarCheck, AlertTriangle, Leaf, CheckCircle2, Pill, Zap, Users, User, ShoppingCart, ShoppingBag, RefreshCw, Package, Activity, CalendarDays, ArrowRight, Scale, Target, ShieldCheck, CreditCard, Sparkles, Terminal } from 'lucide-react';
+import { Brain, Loader2, CalendarCheck, AlertTriangle, Leaf, CheckCircle2, Pill, Zap, Users, User, ShoppingCart, ShoppingBag, Package, Activity, CalendarDays, ArrowRight, Target, ShieldCheck, Terminal } from 'lucide-react';
 
 interface PlannerProps {
     language: Language;
