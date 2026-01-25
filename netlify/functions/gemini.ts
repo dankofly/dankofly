@@ -1,7 +1,7 @@
 import { Handler } from '@netlify/functions';
 import { GoogleGenAI, Type } from '@google/genai';
 
-const MODEL = 'gemini-3-flash-preview';
+const MODEL = 'gemini-2.0-flash';
 
 /**
  * Backend proxy for Gemini API calls
