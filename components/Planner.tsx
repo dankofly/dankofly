@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { UserProfile, WeeklyPlan, DayPlan, Language, Nutrients } from '../types';
 import { getNutData, APP_CONTENT } from '../constants';
 import { generateWeeklyPlan } from '../services/geminiService';
@@ -9,6 +9,13 @@ import { Brain, Loader2, CalendarCheck, AlertTriangle, Leaf, CheckCircle2, Pill,
 
 interface PlannerProps {
     language: Language;
+}
+
+interface ShoppingListItem {
+    name: string;
+    amount: number;
+    packRecommendation: string;
+    url: string;
 }
 
 const Planner: React.FC<PlannerProps> = ({ language }) => {
@@ -126,9 +133,9 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
     }
   };
 
-  const calculateDailyNutrients = (mix: string[]): Nutrients => {
+  const calculateDailyNutrients = useCallback((mix: string[]): Nutrients => {
     if (!mix || !Array.isArray(mix)) return { energy: 0, protein: 0, carbs: 0, sugar: 0, fat: 0, saturatedFat: 0, magnesium: 0, calcium: 0, iron: 0, zinc: 0, potassium: 0, vitaminE: 0, b1: 0, b6: 0, selenium: 0, omega3: 0 };
-    
+
     const nutData = getNutData(language);
     const sortedNuts = [...nutData].sort((a, b) => b.name.length - a.name.length);
     const total: Nutrients = { energy: 0, protein: 0, carbs: 0, sugar: 0, fat: 0, saturatedFat: 0, magnesium: 0, calcium: 0, iron: 0, zinc: 0, potassium: 0, vitaminE: 0, b1: 0, b6: 0, selenium: 0, omega3: 0 };
@@ -147,9 +154,9 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
         }
     });
     return total;
-  };
+  }, [language]);
 
-  const calculateShoppingList = (schedule: DayPlan[]) => {
+  const calculateShoppingList = useCallback((schedule: DayPlan[]): ShoppingListItem[] => {
     if (!schedule || !Array.isArray(schedule)) return [];
     const totals: Record<string, number> = {};
     const nutData = getNutData(language);
@@ -175,7 +182,12 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
       const url = nutProfile ? nutProfile.shopUrl : `https://www.2die4livefoods.com/search?q=${encodeURIComponent(name)}`;
       return { name, amount, packRecommendation, url };
     }).sort((a, b) => b.amount - a.amount);
-  };
+  }, [language, profile.duration]);
+
+  const shoppingList = useMemo(() => {
+    if (!plan?.schedule) return [];
+    return calculateShoppingList(plan.schedule);
+  }, [plan?.schedule, calculateShoppingList]);
 
   return (
     <div className="max-w-5xl mx-auto px-2 sm:px-4">
@@ -197,14 +209,14 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
             <div className="md:col-span-2">
                 <label className="block text-brand-light mb-2 text-xs font-bold uppercase tracking-wider">{txt.form.lifeStage}</label>
                 <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                    <button type="button" onClick={() => setProfile({...profile, lifeStage: 'adult', goal: 'energy'})} className={`flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl border-2 transition-all font-bold text-base sm:text-lg ${profile.lifeStage === 'adult' ? 'border-brand-accent bg-brand-accent text-white shadow-md' : 'border-stone-200 bg-stone-50 text-stone-500 hover:bg-white'}`}><User size={18} /> {options.adult}</button>
-                    <button type="button" onClick={() => setProfile({...profile, lifeStage: 'child', goal: 'growth_focus', age: 8, weight: 30})} className={`flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl border-2 transition-all font-bold text-base sm:text-lg ${profile.lifeStage === 'child' ? 'border-brand-accent bg-brand-accent text-white shadow-md' : 'border-stone-200 bg-stone-50 text-stone-500 hover:bg-white'}`}><Users size={18} /> {options.child}</button>
+                    <button type="button" onClick={() => setProfile({...profile, lifeStage: 'adult', goal: 'energy'})} className={`flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl border-2 transition-all font-bold text-base sm:text-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2 ${profile.lifeStage === 'adult' ? 'border-brand-accent bg-brand-accent text-white shadow-md' : 'border-stone-200 bg-stone-50 text-stone-500 hover:bg-white'}`}><User size={18} /> {options.adult}</button>
+                    <button type="button" onClick={() => setProfile({...profile, lifeStage: 'child', goal: 'growth_focus', age: 8, weight: 30})} className={`flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl border-2 transition-all font-bold text-base sm:text-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2 ${profile.lifeStage === 'child' ? 'border-brand-accent bg-brand-accent text-white shadow-md' : 'border-stone-200 bg-stone-50 text-stone-500 hover:bg-white'}`}><Users size={18} /> {options.child}</button>
                 </div>
             </div>
 
             <div>
-                <label className="block text-brand-light mb-2 text-xs font-bold uppercase tracking-wider">{txt.form.goal}</label>
-                <select value={profile.goal} onChange={(e) => setProfile({...profile, goal: e.target.value as any})} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 sm:p-4 text-brand-light font-bold appearance-none focus:ring-2 focus:ring-brand-accent focus:outline-none">
+                <label htmlFor="goal-select" className="block text-brand-light mb-2 text-xs font-bold uppercase tracking-wider">{txt.form.goal}</label>
+                <select id="goal-select" value={profile.goal} onChange={(e) => setProfile({...profile, goal: e.target.value as UserProfile['goal']})} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 sm:p-4 text-brand-light font-bold appearance-none focus:ring-2 focus:ring-brand-accent focus:outline-none">
                     {profile.lifeStage === 'adult' ? (
                         <>
                             <option value="balance">{options.goals.balance}</option>
@@ -224,8 +236,8 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
             </div>
             
              <div>
-                <label className="block text-brand-light mb-2 text-xs font-bold uppercase tracking-wider">{txt.form.gender}</label>
-                <select value={profile.gender} onChange={(e) => setProfile({...profile, gender: e.target.value as any})} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 sm:p-4 text-brand-light font-bold appearance-none focus:ring-2 focus:ring-brand-accent focus:outline-none">
+                <label htmlFor="gender-select" className="block text-brand-light mb-2 text-xs font-bold uppercase tracking-wider">{txt.form.gender}</label>
+                <select id="gender-select" value={profile.gender} onChange={(e) => setProfile({...profile, gender: e.target.value as UserProfile['gender']})} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 sm:p-4 text-brand-light font-bold appearance-none focus:ring-2 focus:ring-brand-accent focus:outline-none">
                     <option value="female">{options.female}</option>
                     <option value="male">{options.male}</option>
                     <option value="diverse">{options.diverse}</option>
@@ -234,18 +246,18 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
 
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                    <label className="block text-brand-light mb-2 text-xs font-bold uppercase tracking-wider">{txt.form.age}</label>
-                    <input type="number" value={profile.age} onChange={(e) => setProfile({...profile, age: parseInt(e.target.value)})} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 sm:p-4 text-brand-light font-bold focus:ring-2 focus:ring-brand-accent focus:outline-none" min={profile.lifeStage === 'child' ? "3" : "18"} />
+                    <label htmlFor="age-input" className="block text-brand-light mb-2 text-xs font-bold uppercase tracking-wider">{txt.form.age}</label>
+                    <input id="age-input" type="number" value={profile.age} onChange={(e) => setProfile({...profile, age: parseInt(e.target.value) || 0})} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 sm:p-4 text-brand-light font-bold focus:ring-2 focus:ring-brand-accent focus:outline-none" min={profile.lifeStage === 'child' ? "3" : "18"} />
                 </div>
                 <div>
-                    <label className="block text-brand-light mb-2 text-xs font-bold uppercase tracking-wider">{txt.form.weight}</label>
-                    <input type="number" value={profile.weight} onChange={(e) => setProfile({...profile, weight: parseInt(e.target.value)})} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 sm:p-4 text-brand-light font-bold focus:ring-2 focus:ring-brand-accent focus:outline-none" min="10" />
+                    <label htmlFor="weight-input" className="block text-brand-light mb-2 text-xs font-bold uppercase tracking-wider">{txt.form.weight}</label>
+                    <input id="weight-input" type="number" value={profile.weight} onChange={(e) => setProfile({...profile, weight: parseInt(e.target.value) || 0})} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 sm:p-4 text-brand-light font-bold focus:ring-2 focus:ring-brand-accent focus:outline-none" min="10" />
                 </div>
             </div>
 
             <div className="md:col-span-1">
-                <label className="block text-brand-light mb-2 text-xs font-bold uppercase tracking-wider">{txt.form.duration}</label>
-                <select value={profile.duration} onChange={(e) => setProfile({...profile, duration: parseInt(e.target.value)})} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 sm:p-4 text-brand-light font-bold appearance-none focus:ring-2 focus:ring-brand-accent">
+                <label htmlFor="duration-select" className="block text-brand-light mb-2 text-xs font-bold uppercase tracking-wider">{txt.form.duration}</label>
+                <select id="duration-select" value={profile.duration} onChange={(e) => setProfile({...profile, duration: parseInt(e.target.value)})} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 sm:p-4 text-brand-light font-bold appearance-none focus:ring-2 focus:ring-brand-accent focus:outline-none">
                     <option value="1">1 {language === 'de' ? 'Woche' : 'Week'}</option>
                     <option value="2">2 {language === 'de' ? 'Wochen' : 'Weeks'}</option>
                     <option value="4">4 {language === 'de' ? 'Wochen' : 'Weeks'}</option>
@@ -253,7 +265,7 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
             </div>
 
             <div className="md:col-span-2 mt-4">
-                 <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-brand-accent to-[#85bc22] text-white font-black text-lg sm:text-xl py-4 sm:py-5 px-6 rounded-xl transition-all shadow-xl disabled:opacity-50 flex justify-center items-center gap-3">
+                 <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-brand-accent to-[#85bc22] text-white font-black text-lg sm:text-xl py-4 sm:py-5 px-6 rounded-xl transition-all shadow-xl disabled:opacity-50 flex justify-center items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2">
                     {loading ? <Loader2 className="animate-spin" size={20} /> : <CalendarCheck size={20} />}
                     {loading ? txt.form.buttonLoading : txt.form.buttonDefault}
                 </button>
@@ -363,7 +375,7 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
                             <span className="hidden xs:inline-block text-[10px] bg-brand-accent text-white px-3 py-1.5 rounded-lg font-black uppercase tracking-wide">{profile.duration} {txt.results.weekSupply}</span>
                         </div>
                         <div className="p-4 sm:p-8 grid sm:grid-cols-2 gap-4 sm:gap-6 bg-stone-50/30 flex-1">
-                            {calculateShoppingList(plan.schedule).map((item, idx) => (
+                            {shoppingList.map((item, idx) => (
                                 <div key={idx} className="flex flex-col p-4 rounded-2xl bg-white border border-stone-200 hover:border-brand-accent/50 hover:shadow-lg transition-all relative overflow-hidden">
                                     <div className="flex justify-between items-start mb-2 relative z-10">
                                         <span className="font-bold text-base sm:text-lg text-brand-light leading-tight">{item.name}</span>

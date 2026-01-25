@@ -55,8 +55,15 @@ const NutrientChart: React.FC<Props> = ({ currentIntake, language = 'de', height
   });
 
   // Custom Label Renderer to show Checkmark when 100% is reached
-  const renderCustomLabel = (props: any) => {
-    const { x, y, width, height, value } = props;
+  interface LabelProps {
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    value?: number;
+  }
+  const renderCustomLabel = (props: LabelProps) => {
+    const { x = 0, y = 0, width = 0, height = 0, value = 0 } = props;
     const isReached = value >= 100;
     // Increased font sizes for simple mode
     const fontSize = simple ? 10 : 11;
@@ -186,4 +193,4 @@ const NutrientChart: React.FC<Props> = ({ currentIntake, language = 'de', height
   );
 };
 
-export default NutrientChart;
+export default React.memo(NutrientChart);

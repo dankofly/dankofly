@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import Planner from './components/Planner';
-import NutLibrary from './components/NutLibrary';
+import React, { useState, lazy, Suspense } from 'react';
+
+const Planner = lazy(() => import('./components/Planner'));
+const NutLibrary = lazy(() => import('./components/NutLibrary'));
 import { Brain, Menu, X, BookOpen, Globe, ChevronRight } from 'lucide-react';
 import { APP_CONTENT } from './constants';
 import { Language } from './types';
@@ -206,10 +207,12 @@ const App: React.FC = () => {
             </p>
         </div>
 
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {activeTab === Tab.PLANNER && <Planner language={language} />}
-            {activeTab === Tab.LIBRARY && <NutLibrary language={language} />}
-        </div>
+        <Suspense fallback={<div className="flex justify-center items-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-4 border-brand-accent border-t-transparent"></div></div>}>
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {activeTab === Tab.PLANNER && <Planner language={language} />}
+              {activeTab === Tab.LIBRARY && <NutLibrary language={language} />}
+          </div>
+        </Suspense>
       </main>
 
       {/* Footer / Disclaimer */}
