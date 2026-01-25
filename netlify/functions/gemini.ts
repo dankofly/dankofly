@@ -1,11 +1,11 @@
 import { Handler } from '@netlify/functions';
-import { GoogleGenAI } from '@google/genai';
 
 const MODEL = 'gemini-2.0-flash';
+const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 /**
  * Backend proxy for Gemini API calls
- * Prevents client-side API key exposure
+ * Uses direct REST API instead of SDK to avoid bundling issues
  */
 export const handler: Handler = async (event) => {
   const headers = {
@@ -47,42 +47,62 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    const ai = new GoogleGenAI({ apiKey });
-
-    // Build simple config without schema (let model return JSON naturally)
-    const requestConfig: Record<string, unknown> = {
-      temperature: config?.temperature ?? 0.1,
+    // Build request body for Gemini REST API
+    const requestBody = {
+      contents: [
+        {
+          parts: [{ text: prompt }]
+        }
+      ],
+      generationConfig: {
+        temperature: config?.temperature ?? 0.1,
+        responseMimeType: config?.responseMimeType || 'text/plain',
+      }
     };
 
-    if (config?.seed !== undefined) {
-      requestConfig.seed = config.seed;
+    // Call Gemini API directly
+    const response = await fetch(
+      `${API_URL}/${MODEL}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('Gemini API error response:', errorData);
+      return {
+        statusCode: response.status,
+        headers,
+        body: JSON.stringify({
+          error: 'Gemini API request failed',
+          details: errorData
+        })
+      };
     }
 
-    if (config?.responseMimeType) {
-      requestConfig.responseMimeType = config.responseMimeType;
-    }
+    const data = await response.json();
 
-    const response = await ai.models.generateContent({
-      model: MODEL,
-      contents: prompt,
-      config: requestConfig
-    });
+    // Extract text from Gemini response
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
-    if (!response.text) {
+    if (!text) {
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: 'Empty response from model' })
+        body: JSON.stringify({ error: 'Empty response from model', raw: data })
       };
     }
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ text: response.text })
+      body: JSON.stringify({ text })
     };
   } catch (error) {
-    console.error('Gemini API error:', error);
+    console.error('Gemini proxy error:', error);
     return {
       statusCode: 500,
       headers,
