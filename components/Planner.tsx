@@ -5,7 +5,7 @@ import { generateWeeklyPlan } from '../services/geminiService';
 import { dbService, getProfileHash } from '../services/dbService';
 import { validateUserProfile } from '../services/validationService';
 import NutrientChart from './NutrientChart';
-import { Brain, Loader2, CalendarCheck, AlertTriangle, Leaf, CheckCircle2, Pill, Zap, Users, User, ShoppingCart, ShoppingBag, Package, Activity, CalendarDays, ArrowRight, Target, ShieldCheck, Terminal, Share2, Printer, Mail, MessageCircle } from 'lucide-react';
+import { Brain, Loader2, CalendarCheck, AlertTriangle, Leaf, CheckCircle2, Pill, Zap, Users, User, ShoppingCart, ShoppingBag, Package, Activity, CalendarDays, ArrowRight, Target, ShieldCheck, Terminal, Share2, Printer, Mail, MessageCircle, Gift, Truck, Sparkles } from 'lucide-react';
 
 interface PlannerProps {
     language: Language;
@@ -457,6 +457,71 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
                             </div>
                         );
                     })}
+                </div>
+
+                {/* ALL-IN-ONE Set Promo Box */}
+                <div className="bg-gradient-to-br from-stone-50 to-stone-100 rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-xl overflow-hidden relative">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-brand-accent/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+
+                    <div className="relative z-10 flex flex-col lg:flex-row gap-6 lg:gap-10 items-center">
+                        <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="bg-brand-accent/10 p-2 rounded-xl">
+                                    <Gift className="text-brand-accent" size={24} />
+                                </div>
+                                <h3 className="text-2xl sm:text-3xl font-black text-brand-light">
+                                    {language === 'de' ? '2DiE4 ALL-IN-ONE Set!' : '2DiE4 ALL-IN-ONE Set!'}
+                                </h3>
+                                <div className="bg-red-500 text-white px-3 py-1 rounded-lg transform rotate-[-3deg] shadow-md">
+                                    <span className="font-black text-sm">-22%</span>
+                                </div>
+                            </div>
+
+                            <p className="text-stone-600 text-sm sm:text-base mb-4 font-medium">
+                                {language === 'de'
+                                    ? 'Entdecke oder verschenke alle unsere Nüsse: 7 Sorten à 100g'
+                                    : 'Discover or gift all our nuts: 7 varieties × 100g'}
+                            </p>
+
+                            <ul className="space-y-2 mb-6">
+                                <li className="flex items-start gap-2 text-sm">
+                                    <Sparkles className="text-brand-accent shrink-0 mt-0.5" size={16} />
+                                    <span><strong className="text-brand-light">{language === 'de' ? 'Premium-Auswahl' : 'Premium Selection'}:</strong> {language === 'de' ? '7 x 100g aktivierte Bio-Nüsse (inkl. Nuss-Mix)' : '7 x 100g activated organic nuts (incl. Nut Mix)'}</span>
+                                </li>
+                                <li className="flex items-start gap-2 text-sm">
+                                    <CheckCircle2 className="text-emerald-500 shrink-0 mt-0.5" size={16} />
+                                    <span><strong className="text-brand-light">{language === 'de' ? 'Smart gespart' : 'Smart savings'}:</strong> {language === 'de' ? 'Du sicherst dir 22% Rabatt im Set' : 'You save 22% with the set'}</span>
+                                </li>
+                                <li className="flex items-start gap-2 text-sm">
+                                    <Truck className="text-blue-500 shrink-0 mt-0.5" size={16} />
+                                    <span><strong className="text-brand-light">{language === 'de' ? 'Sofort-Bonus' : 'Instant bonus'}:</strong> {language === 'de' ? 'Versandkostenfrei (DE/AT)!' : 'Free shipping (DE/AT)!'}</span>
+                                </li>
+                            </ul>
+
+                            <p className="text-xs text-stone-500 italic mb-4">
+                                {language === 'de'
+                                    ? 'Das Set enthält alle unserer Bestseller und die restlichen Nüsse im Nuss-Mix.'
+                                    : 'The set contains all our bestsellers and the remaining nuts in the Nut Mix.'}
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col items-center gap-4 lg:min-w-[200px]">
+                            <div className="text-center">
+                                <div className="text-3xl sm:text-4xl font-black text-brand-accent">49,90 €</div>
+                                <div className="text-sm text-stone-400 line-through">64,30 €</div>
+                            </div>
+                            <a
+                                href="https://www.2die4livefoods.com/de-de/products/2die4-all-in-one-bundle"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full bg-brand-accent hover:bg-brand-accent/90 text-white font-black py-4 px-8 rounded-xl text-center transition-all shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base"
+                            >
+                                <span>{language === 'de' ? 'Jetzt kaufen!' : 'Buy now!'}</span>
+                                <ArrowRight size={18} />
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="grid lg:grid-cols-12 gap-6 sm:gap-8">
