@@ -28,7 +28,107 @@ button, a, input, select, textarea {
 
 /* Print styles */
 @media print {
-  .no-print {
+  .no-print,
+  .print\:hidden,
+  nav,
+  footer,
+  button[type="submit"],
+  .animate-spin {
     display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+
+  /* Remove shadows and borders for cleaner print */
+  .shadow-xl,
+  .shadow-lg,
+  .shadow-md,
+  .shadow-sm {
+    box-shadow: none !important;
+  }
+
+  /* Ensure content fits on page */
+  .max-w-5xl,
+  .max-w-7xl {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Make cards print-friendly */
+  .rounded-2xl,
+  .rounded-3xl,
+  .rounded-xl {
+    border-radius: 4px !important;
+  }
+
+  /* Page breaks */
+  .space-y-4 > div,
+  .space-y-6 > div {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Ensure text is readable */
+  .text-brand-light,
+  .text-brand-muted,
+  .text-stone-600,
+  .text-stone-500 {
+    color: #333 !important;
+  }
+
+  /* Hide charts in print (too complex) */
+  .recharts-wrapper {
+    display: none !important;
+  }
+
+  /* Show a simple nutrient summary instead */
+  .lg\:border-l {
+    border-left: none !important;
+    padding-left: 0 !important;
+  }
+
+  /* Links should show URL */
+  a[href^="http"]:after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #666;
+  }
+
+  /* Header styling for print */
+  h3, h4 {
+    color: black !important;
+    page-break-after: avoid;
+  }
+
+  /* Compact spacing */
+  .p-5, .p-6, .p-8, .p-10,
+  .sm\:p-6, .sm\:p-8, .lg\:p-8, .lg\:p-10 {
+    padding: 12px !important;
+  }
+
+  .mb-4, .mb-6, .mb-8,
+  .sm\:mb-6, .sm\:mb-8 {
+    margin-bottom: 8px !important;
+  }
+
+  .gap-6, .gap-8,
+  .sm\:gap-6, .sm\:gap-8 {
+    gap: 8px !important;
+  }
+
+  /* Shopping list grid */
+  .grid.sm\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Bio-Hack boxes */
+  .bg-\[\#fffbeb\] {
+    background: #f9f9f9 !important;
+    border: 1px solid #ddd !important;
   }
 }

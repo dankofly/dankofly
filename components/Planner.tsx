@@ -5,7 +5,7 @@ import { generateWeeklyPlan } from '../services/geminiService';
 import { dbService, getProfileHash } from '../services/dbService';
 import { validateUserProfile } from '../services/validationService';
 import NutrientChart from './NutrientChart';
-import { Brain, Loader2, CalendarCheck, AlertTriangle, Leaf, CheckCircle2, Pill, Zap, Users, User, ShoppingCart, ShoppingBag, Package, Activity, CalendarDays, ArrowRight, Target, ShieldCheck, Terminal } from 'lucide-react';
+import { Brain, Loader2, CalendarCheck, AlertTriangle, Leaf, CheckCircle2, Pill, Zap, Users, User, ShoppingCart, ShoppingBag, Package, Activity, CalendarDays, ArrowRight, Target, ShieldCheck, Terminal, Share2, Printer, Mail, MessageCircle } from 'lucide-react';
 
 interface PlannerProps {
     language: Language;
@@ -189,6 +189,56 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
     return calculateShoppingList(plan.schedule);
   }, [plan?.schedule, calculateShoppingList]);
 
+  // Format plan as shareable text
+  const formatPlanAsText = useCallback((): string => {
+    if (!plan) return '';
+
+    const header = `🥜 ${plan.title}\n\n${plan.strategy}\n\n`;
+
+    const days = plan.schedule.map(day => {
+      const mixText = day.mix.map(item => `  • ${item}`).join('\n');
+      return `📅 ${day.day}\n${mixText}\n   🎯 ${day.focus}`;
+    }).join('\n\n');
+
+    const shopping = shoppingList.map(item => `  • ${item.name}: ${item.amount}g`).join('\n');
+    const shoppingText = `\n\n🛒 ${language === 'de' ? 'Einkaufsliste' : 'Shopping List'}:\n${shopping}`;
+
+    const footer = `\n\n${plan.summary}\n\n---\n${language === 'de' ? 'Erstellt mit' : 'Created with'} NutriPlan AI • 2die4livefoods.com`;
+
+    return header + days + shoppingText + footer;
+  }, [plan, shoppingList, language]);
+
+  // Share handlers
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleWhatsAppShare = () => {
+    const text = formatPlanAsText();
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  };
+
+  const handleEmailShare = () => {
+    const subject = plan ? `${plan.title} - NutriPlan AI` : 'My NutriPlan';
+    const body = formatPlanAsText();
+    const url = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = url;
+  };
+
+  const handleNativeShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: plan?.title || 'NutriPlan',
+          text: formatPlanAsText(),
+        });
+      } catch (err) {
+        // User cancelled or error - silently fail
+      }
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-2 sm:px-4">
       {/* FORM SECTION */}
@@ -317,6 +367,47 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Share Buttons */}
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 print:hidden">
+                            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mr-2">
+                                {language === 'de' ? 'Teilen' : 'Share'}:
+                            </span>
+                            <button
+                                onClick={handleWhatsAppShare}
+                                className="flex items-center gap-2 px-3 py-2 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-lg text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2"
+                                title="WhatsApp"
+                            >
+                                <MessageCircle size={16} />
+                                <span className="hidden sm:inline">WhatsApp</span>
+                            </button>
+                            <button
+                                onClick={handleEmailShare}
+                                className="flex items-center gap-2 px-3 py-2 bg-stone-600 hover:bg-stone-700 text-white rounded-lg text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-600 focus-visible:ring-offset-2"
+                                title="Email"
+                            >
+                                <Mail size={16} />
+                                <span className="hidden sm:inline">Email</span>
+                            </button>
+                            <button
+                                onClick={handlePrint}
+                                className="flex items-center gap-2 px-3 py-2 bg-stone-200 hover:bg-stone-300 text-stone-700 rounded-lg text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
+                                title={language === 'de' ? 'Drucken' : 'Print'}
+                            >
+                                <Printer size={16} />
+                                <span className="hidden sm:inline">{language === 'de' ? 'Drucken' : 'Print'}</span>
+                            </button>
+                            {typeof navigator !== 'undefined' && navigator.share && (
+                                <button
+                                    onClick={handleNativeShare}
+                                    className="flex items-center gap-2 px-3 py-2 bg-brand-accent hover:bg-brand-accent/80 text-white rounded-lg text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2"
+                                    title={language === 'de' ? 'Mehr...' : 'More...'}
+                                >
+                                    <Share2 size={16} />
+                                    <span className="hidden sm:inline">{language === 'de' ? 'Mehr' : 'More'}</span>
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
