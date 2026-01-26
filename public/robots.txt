@@ -1,0 +1,46 @@
+# robots.txt for NutriPlan AI by 2DiE4 Live Foods
+# https://2die4.hypeakz.io/
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://2die4.hypeakz.io/sitemap.xml
+
+# Allow all major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Allow AI/LLM crawlers for GEO (Generative Engine Optimization)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Anthropic-AI
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+# Crawl delay to be polite
+Crawl-delay: 1
+
+# Host
+Host: https://2die4.hypeakz.io
