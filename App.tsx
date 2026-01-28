@@ -2,13 +2,15 @@ import React, { useState, lazy, Suspense } from 'react';
 
 const Planner = lazy(() => import('./components/Planner'));
 const NutLibrary = lazy(() => import('./components/NutLibrary'));
-import { Brain, Menu, X, BookOpen, Globe, ChevronRight } from 'lucide-react';
+const Sources = lazy(() => import('./components/Sources'));
+import { Brain, Menu, X, BookOpen, Globe, ChevronRight, FileText } from 'lucide-react';
 import { APP_CONTENT } from './constants';
 import { Language } from './types';
 
 enum Tab {
   PLANNER = 'planner',
   LIBRARY = 'library',
+  SOURCES = 'sources',
 }
 
 // Custom Logo Component - JPG Version
@@ -70,13 +72,24 @@ const App: React.FC = () => {
               <button
                 onClick={() => setActiveTab(Tab.LIBRARY)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
-                  activeTab === Tab.LIBRARY 
-                    ? 'bg-brand-input text-brand-accent ring-1 ring-brand-accent' 
+                  activeTab === Tab.LIBRARY
+                    ? 'bg-brand-input text-brand-accent ring-1 ring-brand-accent'
                     : 'text-brand-muted hover:text-brand-light hover:bg-brand-input'
                 }`}
               >
                 <BookOpen size={18} />
                 <span className="font-medium">{txt.libraryTab}</span>
+              </button>
+              <button
+                onClick={() => setActiveTab(Tab.SOURCES)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
+                  activeTab === Tab.SOURCES
+                    ? 'bg-brand-input text-brand-accent ring-1 ring-brand-accent'
+                    : 'text-brand-muted hover:text-brand-light hover:bg-brand-input'
+                }`}
+              >
+                <FileText size={18} />
+                <span className="font-medium">{txt.sourcesTab}</span>
               </button>
 
               <div className="h-6 w-px bg-brand-border mx-2"></div>
@@ -162,8 +175,8 @@ const App: React.FC = () => {
             <button
                 onClick={() => handleTabChange(Tab.LIBRARY)}
                 className={`w-full flex items-center justify-between p-4 rounded-xl text-lg font-medium transition-all duration-200 border ${
-                activeTab === Tab.LIBRARY 
-                    ? 'bg-brand-input border-brand-accent text-brand-accent shadow-sm' 
+                activeTab === Tab.LIBRARY
+                    ? 'bg-brand-input border-brand-accent text-brand-accent shadow-sm'
                     : 'bg-white border-transparent text-brand-muted hover:bg-stone-50 hover:text-brand-light'
                 }`}
             >
@@ -172,6 +185,21 @@ const App: React.FC = () => {
                     {txt.libraryTab}
                 </div>
                  {activeTab === Tab.LIBRARY && <ChevronRight size={20} />}
+            </button>
+
+            <button
+                onClick={() => handleTabChange(Tab.SOURCES)}
+                className={`w-full flex items-center justify-between p-4 rounded-xl text-lg font-medium transition-all duration-200 border ${
+                activeTab === Tab.SOURCES
+                    ? 'bg-brand-input border-brand-accent text-brand-accent shadow-sm'
+                    : 'bg-white border-transparent text-brand-muted hover:bg-stone-50 hover:text-brand-light'
+                }`}
+            >
+                <div className="flex items-center gap-4">
+                    <FileText size={24} />
+                    {txt.sourcesTab}
+                </div>
+                 {activeTab === Tab.SOURCES && <ChevronRight size={20} />}
             </button>
 
             <div className="py-6">
@@ -200,10 +228,12 @@ const App: React.FC = () => {
             <h1 className="text-4xl md:text-5xl font-bold text-brand-light mb-4">
                 {activeTab === Tab.PLANNER && txt.plannerHeader}
                 {activeTab === Tab.LIBRARY && txt.libraryHeader}
+                {activeTab === Tab.SOURCES && txt.sourcesHeader}
             </h1>
             <p className="text-xl text-brand-muted max-w-2xl mx-auto">
                 {activeTab === Tab.PLANNER && txt.plannerSubHeader}
                 {activeTab === Tab.LIBRARY && txt.librarySubHeader}
+                {activeTab === Tab.SOURCES && txt.sourcesSubHeader}
             </p>
         </div>
 
@@ -211,6 +241,7 @@ const App: React.FC = () => {
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
               {activeTab === Tab.PLANNER && <Planner language={language} />}
               {activeTab === Tab.LIBRARY && <NutLibrary language={language} />}
+              {activeTab === Tab.SOURCES && <Sources language={language} />}
           </div>
         </Suspense>
       </main>

@@ -156,10 +156,13 @@ export const APP_CONTENT = {
     general: {
       plannerTab: "Nuss Nutri Planer",
       libraryTab: "Nuss Nutri Rechner",
+      sourcesTab: "Quellen",
       plannerHeader: "Dein natürlicher Nährstoff-Plan",
       plannerSubHeader: "Versorge mit aktivierten Nüssen deinen Körper mit natürlichen Nährstoffen die er wirklich braucht. Erstelle einen 7-Tage-Ernährungsplan mit aktivierten Bio-Nüssen von 2DiE4 – entwickelt für natürliche Nährstoffversorgung ohne synthetische Zusätze.",
       libraryHeader: "Was steckt in den aktivierten Bio Nüssen von 2DiE4?",
       librarySubHeader: "Erfahre alles über die Nährstoffe und gesundheitlichen Vorteile unserer aktivierten Nüsse",
+      sourcesHeader: "Wissenschaftliche Quellen",
+      sourcesSubHeader: "Quellenverweise für alle Nährwertdaten und Berechnungen im Planer und Rechner",
       footerDisclaimer: "© 2026 2diE4 Live Foods. Nährwerte können natürlichen Schwankungen unterliegen.",
       footerNote: "Diese App dient zur Information und ersetzt keine ärztliche Beratung - Alle Angaben ohne Gewähr."
     },
@@ -257,10 +260,13 @@ export const APP_CONTENT = {
     general: {
       plannerTab: "Nut Nutri Planner",
       libraryTab: "Nut Nutri Calculator",
+      sourcesTab: "Sources",
       plannerHeader: "Your Natural Nutrient Plan",
       plannerSubHeader: "Get all the nutrients your body really needs with activated nuts. Create a 7-day nutrition plan with activated organic nuts from 2DiE4 – designed for natural nutrient supply without synthetic additives.",
       libraryHeader: "What's inside 2DiE4 Activated Organic Nuts?",
       librarySubHeader: "Learn all about the nutrients and health benefits of our activated nuts.",
+      sourcesHeader: "Scientific Sources",
+      sourcesSubHeader: "Source references for all nutritional data and calculations in the planner and calculator",
       footerDisclaimer: "© 2026 2diE4 Live Foods. Nutritional values may vary naturally.",
       footerNote: "This app is for information purposes only and does not replace medical advice."
     },
