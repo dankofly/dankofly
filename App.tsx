@@ -310,6 +310,14 @@ const App: React.FC = () => {
               </h4>
               <nav className="flex flex-col gap-2">
                 <a
+                  href="https://www.2die4livefoods.com/pages/2die4-live-foods-nuss-abo"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-1.5 text-sm font-semibold text-brand-accent hover:text-brand-light transition-colors"
+                >
+                  {language === 'de' ? 'Nuss-Abo' : 'Nut Subscription'}
+                </a>
+                <a
                   href="https://www.2die4livefoods.com/de-de/collections/alle-produkte"
                   target="_blank"
                   rel="noopener noreferrer"
