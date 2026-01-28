@@ -36,7 +36,7 @@ export interface UserProfile {
   age: number;
   gender: 'male' | 'female' | 'diverse';
   lifeStage: 'adult' | 'child';
-  goal: 'balance' | 'muscle' | 'energy' | 'immunity' | 'growth_focus' | 'keto';
+  goal: 'balance' | 'muscle' | 'energy' | 'immunity' | 'growth_focus' | 'keto' | 'concentration';
   weight: number;
   duration: number; // duration in weeks
   language: Language;

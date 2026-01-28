@@ -278,7 +278,7 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
                     ) : (
                         <>
                             <option value="growth_focus">{options.goals.growth_focus}</option>
-                            <option value="energy">{options.goals.concentration}</option>
+                            <option value="concentration">{options.goals.concentration}</option>
                             <option value="immunity">{options.goals.immunity}</option>
                         </>
                     )}
