@@ -2,14 +2,16 @@ import React, { useState, lazy, Suspense } from 'react';
 
 const Planner = lazy(() => import('./components/Planner'));
 const NutLibrary = lazy(() => import('./components/NutLibrary'));
+const FAQ = lazy(() => import('./components/FAQ'));
 const Sources = lazy(() => import('./components/Sources'));
-import { Brain, Menu, X, BookOpen, Globe, ChevronRight, FileText } from 'lucide-react';
+import { Brain, Menu, X, BookOpen, Globe, ChevronRight, FileText, HelpCircle } from 'lucide-react';
 import { APP_CONTENT } from './constants';
 import { Language } from './types';
 
 enum Tab {
   PLANNER = 'planner',
   LIBRARY = 'library',
+  FAQ = 'faq',
   SOURCES = 'sources',
 }
 
@@ -79,6 +81,17 @@ const App: React.FC = () => {
               >
                 <BookOpen size={18} />
                 <span className="font-medium">{txt.libraryTab}</span>
+              </button>
+              <button
+                onClick={() => setActiveTab(Tab.FAQ)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
+                  activeTab === Tab.FAQ
+                    ? 'bg-brand-input text-brand-accent ring-1 ring-brand-accent'
+                    : 'text-brand-muted hover:text-brand-light hover:bg-brand-input'
+                }`}
+              >
+                <HelpCircle size={18} />
+                <span className="font-medium">{txt.faqTab}</span>
               </button>
               <button
                 onClick={() => setActiveTab(Tab.SOURCES)}
@@ -188,6 +201,21 @@ const App: React.FC = () => {
             </button>
 
             <button
+                onClick={() => handleTabChange(Tab.FAQ)}
+                className={`w-full flex items-center justify-between p-4 rounded-xl text-lg font-medium transition-all duration-200 border ${
+                activeTab === Tab.FAQ
+                    ? 'bg-brand-input border-brand-accent text-brand-accent shadow-sm'
+                    : 'bg-white border-transparent text-brand-muted hover:bg-stone-50 hover:text-brand-light'
+                }`}
+            >
+                <div className="flex items-center gap-4">
+                    <HelpCircle size={24} />
+                    {txt.faqTab}
+                </div>
+                 {activeTab === Tab.FAQ && <ChevronRight size={20} />}
+            </button>
+
+            <button
                 onClick={() => handleTabChange(Tab.SOURCES)}
                 className={`w-full flex items-center justify-between p-4 rounded-xl text-lg font-medium transition-all duration-200 border ${
                 activeTab === Tab.SOURCES
@@ -228,11 +256,13 @@ const App: React.FC = () => {
             <h1 className="text-4xl md:text-5xl font-bold text-brand-light mb-4">
                 {activeTab === Tab.PLANNER && txt.plannerHeader}
                 {activeTab === Tab.LIBRARY && txt.libraryHeader}
+                {activeTab === Tab.FAQ && txt.faqHeader}
                 {activeTab === Tab.SOURCES && txt.sourcesHeader}
             </h1>
             <p className="text-xl text-brand-muted max-w-2xl mx-auto">
                 {activeTab === Tab.PLANNER && txt.plannerSubHeader}
                 {activeTab === Tab.LIBRARY && txt.librarySubHeader}
+                {activeTab === Tab.FAQ && txt.faqSubHeader}
                 {activeTab === Tab.SOURCES && txt.sourcesSubHeader}
             </p>
         </div>
@@ -241,6 +271,7 @@ const App: React.FC = () => {
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
               {activeTab === Tab.PLANNER && <Planner language={language} />}
               {activeTab === Tab.LIBRARY && <NutLibrary language={language} />}
+              {activeTab === Tab.FAQ && <FAQ language={language} />}
               {activeTab === Tab.SOURCES && <Sources language={language} />}
           </div>
         </Suspense>
