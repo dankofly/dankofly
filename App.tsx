@@ -15,14 +15,15 @@ enum Tab {
   SOURCES = 'sources',
 }
 
-// Custom Logo Component - JPG Version
-// Note: Please ensure 'logo.jpg' is placed in your public directory
+// Custom Logo Component
 const BrandLogo = () => (
-  <img 
-    src="https://www.2die4livefoods.com/cdn/shop/files/LogoStempel_Vektor_schwarz.png?v=1633334363&width=150" 
-    alt="2DiE4 Live Foods" 
-    className="h-28 w-28 object-contain"
-  />
+  <div className="p-2">
+    <img
+      src="https://www.2die4livefoods.com/cdn/shop/files/LogoStempel_Vektor_schwarz.png?v=1633334363&width=150"
+      alt="2DiE4 Live Foods"
+      className="h-[100px] w-[100px] object-contain"
+    />
+  </div>
 );
 
 const App: React.FC = () => {
