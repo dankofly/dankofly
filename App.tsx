@@ -277,30 +277,116 @@ const App: React.FC = () => {
         </Suspense>
       </main>
 
-      {/* Footer / Disclaimer */}
-      <footer className="max-w-7xl mx-auto px-4 text-center text-brand-muted text-sm mt-12 pb-8">
-        <p>{txt.footerDisclaimer}</p>
-        <p className="mt-2">{txt.footerNote}</p>
-        <p className="mt-6">
-          2die4 Live Foods • NutriPlan AI • <a
-            href="https://www.2die4livefoods.com/pages/impressum"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-brand-accent transition-colors underline"
-          >
-            Impressum
-          </a>
-        </p>
-        <p className="mt-2">
-            <a
-                href="https://hypeakz.io/"
+      {/* Footer */}
+      <footer className="mt-16 border-t border-brand-border bg-gradient-to-b from-transparent to-stone-50/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* Main Footer Content */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+            {/* Brand Section */}
+            <div className="text-center md:text-left">
+              <a
+                href="https://www.2die4livefoods.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-bold hover:text-brand-accent transition-colors"
-            >
-                App by HYPEAKZ.IO
-            </a>
-        </p>
+                className="inline-block hover:opacity-80 transition-opacity"
+              >
+                <img
+                  src="https://www.2die4livefoods.com/cdn/shop/files/LogoStempel_Vektor_schwarz.png?v=1633334363&width=150"
+                  alt="2DiE4 Live Foods"
+                  className="h-16 w-16 object-contain mx-auto md:mx-0"
+                />
+              </a>
+              <p className="mt-3 text-sm text-brand-muted max-w-xs mx-auto md:mx-0">
+                {language === 'de'
+                  ? 'Aktivierte Bio-Nüsse für natürliche Nährstoffversorgung.'
+                  : 'Activated organic nuts for natural nutrient supply.'}
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div className="text-center">
+              <h4 className="font-semibold text-brand-light mb-4">
+                {language === 'de' ? 'Schnellzugriff' : 'Quick Links'}
+              </h4>
+              <nav className="flex flex-col gap-2">
+                <a
+                  href="https://www.2die4livefoods.com/de-de/collections/alle-produkte"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-brand-muted hover:text-brand-accent transition-colors"
+                >
+                  {language === 'de' ? 'Zum Shop' : 'Visit Shop'}
+                </a>
+                <a
+                  href="https://www.2die4livefoods.com/pages/faq"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-brand-muted hover:text-brand-accent transition-colors"
+                >
+                  {language === 'de' ? 'Häufige Fragen' : 'FAQ'}
+                </a>
+                <a
+                  href="https://www.2die4livefoods.com/pages/impressum"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-brand-muted hover:text-brand-accent transition-colors"
+                >
+                  Impressum
+                </a>
+              </nav>
+            </div>
+
+            {/* Contact / Info */}
+            <div className="text-center md:text-right">
+              <h4 className="font-semibold text-brand-light mb-4">
+                {language === 'de' ? 'Kontakt' : 'Contact'}
+              </h4>
+              <div className="flex flex-col gap-2">
+                <a
+                  href="mailto:info@2die4livefoods.com"
+                  className="text-sm text-brand-muted hover:text-brand-accent transition-colors"
+                >
+                  info@2die4livefoods.com
+                </a>
+                <a
+                  href="https://www.2die4livefoods.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-brand-muted hover:text-brand-accent transition-colors"
+                >
+                  www.2die4livefoods.com
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-brand-border pt-8">
+            {/* Disclaimer */}
+            <div className="bg-stone-100/80 rounded-xl p-4 mb-6 max-w-2xl mx-auto">
+              <p className="text-xs text-brand-muted text-center leading-relaxed">
+                {txt.footerNote}
+              </p>
+            </div>
+
+            {/* Bottom Bar */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-brand-muted">
+              <p>{txt.footerDisclaimer}</p>
+              <div className="flex items-center gap-2">
+                <span>NutriPlan AI</span>
+                <span className="text-brand-border">•</span>
+                <a
+                  href="https://hypeakz.io/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-brand-accent hover:text-brand-light transition-colors"
+                >
+                  by HYPEAKZ.IO
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );
