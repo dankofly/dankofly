@@ -50,7 +50,7 @@ export const validateUserProfile = (profile: UserProfile): ValidationError[] => 
   }
 
   // Goal validation
-  const validGoals = ['balance', 'muscle', 'energy', 'immunity', 'growth_focus', 'keto'];
+  const validGoals = ['balance', 'muscle', 'energy', 'immunity', 'growth_focus', 'keto', 'concentration', 'diet'];
   if (!validGoals.includes(profile.goal)) {
     errors.push({
       field: 'goal',
@@ -97,7 +97,7 @@ export const sanitizeUserProfile = (profile: Partial<UserProfile>): UserProfile 
     lifeStage: (['adult', 'child'].includes(profile.lifeStage as string)
       ? profile.lifeStage as UserProfile['lifeStage']
       : 'adult'),
-    goal: (['balance', 'muscle', 'energy', 'immunity', 'growth_focus', 'keto'].includes(profile.goal as string)
+    goal: (['balance', 'muscle', 'energy', 'immunity', 'growth_focus', 'keto', 'concentration', 'diet'].includes(profile.goal as string)
       ? profile.goal as UserProfile['goal']
       : 'balance'),
     weight: Math.max(5, Math.min(300, Number(profile.weight) || 70)),
