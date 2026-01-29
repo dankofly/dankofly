@@ -274,6 +274,7 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
                             <option value="muscle">{options.goals.muscle}</option>
                             <option value="immunity">{options.goals.immunity}</option>
                             <option value="keto">{options.goals.keto}</option>
+                                            <option value="diet">{options.goals.diet}</option>
                         </>
                     ) : (
                         <>

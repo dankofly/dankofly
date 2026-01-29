@@ -95,6 +95,11 @@ const GOAL_NUT_PREFERENCES: Record<string, { primary: string[]; secondary: strin
     primary: ['Walnüsse', 'Cashewkerne', 'Kürbiskerne'],
     secondary: ['Mandeln', 'Haselnüsse'],
     rationale: 'Omega-3 (Walnüsse: 10g ALA/100g), B-Vitamine und Magnesium für Gehirnfunktion und Konzentration'
+  },
+  diet: {
+    primary: ['Kürbiskerne', 'Mandeln', 'Pistazien'],
+    secondary: ['Cashewkerne', 'Paranüsse'],
+    rationale: 'Maximale Mikronährstoffdichte bei minimaler Kalorienzufuhr. Kürbiskerne haben die niedrigsten Kalorien (562 kcal/100g) bei höchster Nährstoffdichte (Mg, Fe, Zn, Protein). Pistazien liefern Sättigung durch hohen Proteingehalt.'
   }
 };
 

@@ -166,7 +166,7 @@ export const APP_CONTENT = {
       faqSubHeader: "Alles Wissenswerte zum Nutri-Planer, Nuss-Rechner und aktivierten Bio-Nüssen",
       sourcesHeader: "Wissenschaftliche Quellen",
       sourcesSubHeader: "Quellenverweise für alle Nährwertdaten und Berechnungen im Planer und Rechner",
-      footerDisclaimer: "© 2026 2diE4 Live Foods. Nährwerte können natürlichen Schwankungen unterliegen.",
+      footerDisclaimer: "© 2026 2DiE4 Live Foods. Nährwerte können natürlichen Schwankungen unterliegen.",
       footerNote: "Diese App dient zur Information und ersetzt keine ärztliche Beratung - Alle Angaben ohne Gewähr."
     },
     nutLibrary: {
@@ -225,13 +225,14 @@ export const APP_CONTENT = {
                 muscle: "Muskelaufbau & Regeneration",
                 immunity: "Starkes Immunsystem",
                 keto: "Keto-freundlich (Low Carb / High Fat)",
+                diet: "Diät & Abnehmen (kalorienarm)",
                 growth_focus: "Wachstum & Knochen",
                 concentration: "Konzentration & Schule",
             }
         }
       },
       aboBox: {
-          recommendationTitle: "Empfohlen: KI-Paket",
+          recommendationTitle: "Empfohlen: Starter-Paket",
           bundleName: "2DiE4 ALL-IN-ONE SET",
           bundleDesc: "Das Set enthält alle unserer Bestseller und die restlichen Nüsse im Nuss-Mix.",
           shippingBonus: "Sofort-Bonus: Dieses Set kommt versandkostenfrei zu dir (DE/AT)!",
@@ -273,7 +274,7 @@ export const APP_CONTENT = {
       faqSubHeader: "Everything you need to know about the Nutri Planner, Nut Calculator and activated organic nuts",
       sourcesHeader: "Scientific Sources",
       sourcesSubHeader: "Source references for all nutritional data and calculations in the planner and calculator",
-      footerDisclaimer: "© 2026 2diE4 Live Foods. Nutritional values may vary naturally.",
+      footerDisclaimer: "© 2026 2DiE4 Live Foods. Nutritional values may vary naturally.",
       footerNote: "This app is for information purposes only and does not replace medical advice."
     },
     nutLibrary: {
@@ -331,14 +332,15 @@ export const APP_CONTENT = {
                 energy: "More Energy & Focus",
                 muscle: "Muscle Building & Recovery",
                 immunity: "Strong Immune System",
-                keto: "Keto-freundlich (Low Carb / High Fat)",
+                keto: "Keto-friendly (Low Carb / High Fat)",
+                diet: "Diet & Weight Loss (low calorie)",
                 growth_focus: "Growth & Bones",
                 concentration: "Concentration & School",
             }
         }
       },
       aboBox: {
-          recommendationTitle: "Recommended: AI-Bundle",
+          recommendationTitle: "Recommended: Starter-Bundle",
           bundleName: "2DiE4 ALL-IN-ONE SET",
           bundleDesc: "The set contains all our bestsellers and the remaining nuts in the nut mix.",
           shippingBonus: "Instant Bonus: Free shipping for this set (DE/AT)!",
