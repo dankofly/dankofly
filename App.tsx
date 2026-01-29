@@ -352,10 +352,10 @@ const App: React.FC = () => {
               </h4>
               <div className="flex flex-col gap-2">
                 <a
-                  href="mailto:info@2die4livefoods.com"
+                  href="mailto:hello@2die4livefoods.com"
                   className="text-sm text-brand-muted hover:text-brand-accent transition-colors"
                 >
-                  info@2die4livefoods.com
+                  hello@2die4livefoods.com
                 </a>
                 <a
                   href="https://www.2die4livefoods.com/"
