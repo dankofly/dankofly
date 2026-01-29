@@ -248,7 +248,7 @@ export const APP_CONTENT = {
       },
       results: {
           title: "Natürliche Nährstoff-Strategie",
-          childSuffix: "for Children",
+          childSuffix: "für Kinder",
           createdFor: "Erstellt für",
           weeks: "Wochen Programm",
           goal: "Tipp",
