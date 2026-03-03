@@ -8,8 +8,9 @@ const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
  * Uses direct REST API instead of SDK to avoid bundling issues
  */
 export const handler: Handler = async (event) => {
+  const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://2die4.hypeakz.io';
   const headers = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Content-Type': 'application/json'
@@ -60,12 +61,15 @@ export const handler: Handler = async (event) => {
       }
     };
 
-    // Call Gemini API directly
+    // Call Gemini API directly (key via header to avoid log leakage)
     const response = await fetch(
-      `${API_URL}/${MODEL}:generateContent?key=${apiKey}`,
+      `${API_URL}/${MODEL}:generateContent`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey,
+        },
         body: JSON.stringify(requestBody)
       }
     );

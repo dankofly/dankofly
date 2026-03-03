@@ -26,6 +26,186 @@ button, a, input, select, textarea {
   transition: all 0.2s ease;
 }
 
+/* ===== WHIMSY ANIMATIONS ===== */
+
+/* Success bounce when plan is generated */
+@keyframes successBounce {
+  0% { opacity: 0; transform: translateY(30px) scale(0.95); }
+  50% { transform: translateY(-8px) scale(1.01); }
+  70% { transform: translateY(3px) scale(0.995); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Staggered fade-in for list items */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Shimmer effect for progress bar */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Pulse glow for active progress */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 4px rgba(176, 191, 87, 0.3); }
+  50% { box-shadow: 0 0 12px rgba(176, 191, 87, 0.6); }
+}
+
+/* Gentle float for icons */
+@keyframes gentleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Confetti burst particles */
+@keyframes confettiFall {
+  0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+  100% { opacity: 0; transform: translateY(120px) rotate(720deg) scale(0.3); }
+}
+
+/* Checkmark draw animation */
+@keyframes drawCheck {
+  0% { stroke-dashoffset: 24; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* Subtle scale on card hover */
+.whimsy-card {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+.whimsy-card:hover {
+  transform: translateY(-2px);
+}
+
+/* CTA button delight */
+.whimsy-cta {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.whimsy-cta:hover:not(:disabled) {
+  transform: scale(1.02) translateY(-1px);
+  box-shadow: 0 8px 25px rgba(176, 191, 87, 0.35);
+}
+.whimsy-cta:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Success result entrance */
+.whimsy-success-enter {
+  animation: successBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Staggered list items */
+.whimsy-stagger > * {
+  opacity: 0;
+  animation: fadeSlideUp 0.4s ease forwards;
+}
+.whimsy-stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.whimsy-stagger > *:nth-child(2) { animation-delay: 0.1s; }
+.whimsy-stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.whimsy-stagger > *:nth-child(4) { animation-delay: 0.2s; }
+.whimsy-stagger > *:nth-child(5) { animation-delay: 0.25s; }
+.whimsy-stagger > *:nth-child(6) { animation-delay: 0.3s; }
+.whimsy-stagger > *:nth-child(7) { animation-delay: 0.35s; }
+.whimsy-stagger > *:nth-child(8) { animation-delay: 0.4s; }
+
+/* Progress bar shimmer */
+.whimsy-progress {
+  background: linear-gradient(
+    90deg,
+    #b0bf57 0%,
+    #c8d76f 40%,
+    #d4e280 50%,
+    #c8d76f 60%,
+    #b0bf57 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite, pulseGlow 2s ease-in-out infinite;
+}
+
+/* Confetti container */
+.whimsy-confetti {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0;
+  overflow: visible;
+  z-index: 20;
+}
+.whimsy-confetti-piece {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  animation: confettiFall 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Language toggle flip */
+.whimsy-lang-flip {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.whimsy-lang-flip:hover {
+  transform: rotate(12deg) scale(1.1);
+}
+
+/* Error shake */
+@keyframes gentleShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
+.whimsy-error {
+  animation: gentleShake 0.5s ease-in-out;
+}
+
+/* Reduced motion: respect user preference */
+@media (prefers-reduced-motion: reduce) {
+  .whimsy-card,
+  .whimsy-cta,
+  .whimsy-lang-flip {
+    transition: none !important;
+  }
+  .whimsy-card:hover {
+    transform: none;
+  }
+  .whimsy-cta:hover:not(:disabled) {
+    transform: none;
+    box-shadow: 0 4px 12px rgba(176, 191, 87, 0.2);
+  }
+  .whimsy-cta:active:not(:disabled) {
+    transform: none;
+  }
+  .whimsy-success-enter {
+    animation: none;
+    opacity: 1;
+  }
+  .whimsy-stagger > * {
+    animation: none;
+    opacity: 1;
+  }
+  .whimsy-progress {
+    animation: none;
+    background: #b0bf57;
+  }
+  .whimsy-confetti-piece {
+    display: none;
+  }
+  .whimsy-error {
+    animation: none;
+  }
+  .whimsy-lang-flip:hover {
+    transform: none;
+  }
+}
+
 /* Print styles */
 @media print {
   .no-print,

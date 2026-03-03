@@ -21,8 +21,10 @@ const getDb = () => {
   return sql;
 };
 
-// Ensure the table exists
+// Ensure the table exists (only runs once per cold start)
+let tableEnsured = false;
 const ensureTable = async () => {
+  if (tableEnsured) return;
   const db = getDb();
   await db`
     CREATE TABLE IF NOT EXISTS plans (
@@ -32,6 +34,10 @@ const ensureTable = async () => {
       plan_data JSONB NOT NULL
     )
   `;
+  await db`
+    CREATE INDEX IF NOT EXISTS idx_plans_profile_hash ON plans(profile_hash)
+  `;
+  tableEnsured = true;
 };
 
 export const handler: Handler = async (event) => {
@@ -40,7 +46,13 @@ export const handler: Handler = async (event) => {
     await ensureTable();
 
     if (event.httpMethod === 'POST') {
-      const { plan, hash } = JSON.parse(event.body || '{}');
+      let parsed;
+      try {
+        parsed = JSON.parse(event.body || '{}');
+      } catch {
+        return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+      }
+      const { plan, hash } = parsed;
       if (!plan) return { statusCode: 400, body: JSON.stringify({ error: 'Missing plan' }) };
 
       const [inserted] = await db`

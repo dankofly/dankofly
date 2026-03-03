@@ -5,7 +5,7 @@ import { generateWeeklyPlan } from '../services/geminiService';
 import { dbService, getProfileHash } from '../services/dbService';
 import { validateUserProfile } from '../services/validationService';
 import NutrientChart from './NutrientChart';
-import { Brain, Loader2, CalendarCheck, AlertTriangle, Leaf, CheckCircle2, Pill, Zap, Users, User, ShoppingCart, ShoppingBag, Package, Activity, CalendarDays, ArrowRight, Target, ShieldCheck, Terminal, Share2, Printer, Mail, MessageCircle, Gift, Truck, Sparkles } from 'lucide-react';
+import { Brain, Loader2, CalendarCheck, AlertTriangle, Leaf, CheckCircle2, Pill, Zap, Users, User, ShoppingCart, ShoppingBag, Package, Activity, CalendarDays, ArrowRight, Target, ShieldCheck, Share2, Printer, Mail, MessageCircle, Gift, Truck, Sparkles } from 'lucide-react';
 
 interface PlannerProps {
     language: Language;
@@ -41,21 +41,7 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
   const [plan, setPlan] = useState<WeeklyPlan | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Load latest plan
-  useEffect(() => {
-    const init = async () => {
-      try {
-        const lastPlan = await dbService.getLatestPlan();
-        // Validation: Ensure the retrieved plan has a valid schedule array
-        if (lastPlan && Array.isArray(lastPlan.schedule) && lastPlan.schedule.length > 0) {
-          setPlan(lastPlan);
-        }
-      } catch (e) {
-        console.warn('Initial load from DB failed', e);
-      }
-    };
-    init();
-  }, []);
+  // Removed: Initial plan load without profile context was loading random plans
 
   useEffect(() => {
     if (plan && resultsRef.current) {
@@ -70,8 +56,20 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
     if (loading) {
       setProgressPercent(0);
       const steps = language === 'de'
-        ? ["Initialisiere...", "Analysiere...", "Wähle Protokoll...", "Generiere Tage...", "Finalisiere..."]
-        : ["Initializing...", "Analyzing...", "Selecting Protocol...", "Generating Days...", "Finalizing..."];
+        ? [
+            "Schnüffle an deinen Nüssen... 🥜",
+            "Berechne die perfekte Mischung... 🧪",
+            "Frage die Nuss-KI um Rat... 🤖",
+            "Optimiere Mikronährstoffe... ⚡",
+            "Poliere deinen Plan auf... ✨",
+          ]
+        : [
+            "Sniffing your nuts... 🥜",
+            "Calculating the perfect mix... 🧪",
+            "Consulting the Nut AI... 🤖",
+            "Optimising micronutrients... ⚡",
+            "Polishing your plan... ✨",
+          ];
 
       let stepIndex = 0;
       setProgressText(steps[0]);
@@ -123,7 +121,7 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
       } else {
           throw new Error("Invalid plan structure generated. Expected 7 days.");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Generation Error:', err);
       setError(language === 'de' 
         ? "Fehler bei der Generierung. Bitte versuche es in wenigen Augenblicken erneut." 
@@ -259,8 +257,8 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
             <div className="md:col-span-2">
                 <label className="block text-brand-light mb-2 text-xs font-bold uppercase tracking-wider">{txt.form.lifeStage}</label>
                 <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                    <button type="button" onClick={() => setProfile({...profile, lifeStage: 'adult', goal: 'energy'})} className={`flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl border-2 transition-all font-bold text-base sm:text-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2 ${profile.lifeStage === 'adult' ? 'border-brand-accent bg-brand-accent text-white shadow-md' : 'border-stone-200 bg-stone-50 text-stone-500 hover:bg-white'}`}><User size={18} /> {options.adult}</button>
-                    <button type="button" onClick={() => setProfile({...profile, lifeStage: 'child', goal: 'growth_focus', age: 8, weight: 30})} className={`flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl border-2 transition-all font-bold text-base sm:text-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2 ${profile.lifeStage === 'child' ? 'border-brand-accent bg-brand-accent text-white shadow-md' : 'border-stone-200 bg-stone-50 text-stone-500 hover:bg-white'}`}><Users size={18} /> {options.child}</button>
+                    <button type="button" onClick={() => setProfile(p => ({...p, lifeStage: 'adult', goal: 'energy', age: p.age < 18 ? 30 : p.age, weight: p.weight < 30 ? 70 : p.weight}))} className={`flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl border-2 transition-all font-bold text-base sm:text-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2 ${profile.lifeStage === 'adult' ? 'border-brand-accent bg-brand-accent text-white shadow-md' : 'border-stone-200 bg-stone-50 text-stone-500 hover:bg-white'}`}><User size={18} /> {options.adult}</button>
+                    <button type="button" onClick={() => setProfile(p => ({...p, lifeStage: 'child', goal: 'growth_focus', age: p.age >= 18 ? 8 : p.age, weight: p.age >= 18 ? 30 : p.weight}))} className={`flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl border-2 transition-all font-bold text-base sm:text-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2 ${profile.lifeStage === 'child' ? 'border-brand-accent bg-brand-accent text-white shadow-md' : 'border-stone-200 bg-stone-50 text-stone-500 hover:bg-white'}`}><Users size={18} /> {options.child}</button>
                 </div>
             </div>
 
@@ -316,7 +314,7 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
             </div>
 
             <div className="md:col-span-2 mt-4">
-                 <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-brand-accent to-[#85bc22] text-white font-black text-lg sm:text-xl py-4 sm:py-5 px-6 rounded-xl transition-all shadow-xl disabled:opacity-50 flex justify-center items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2">
+                 <button type="submit" disabled={loading} className="whimsy-cta w-full bg-gradient-to-r from-brand-accent to-[#85bc22] text-white font-black text-lg sm:text-xl py-4 sm:py-5 px-6 rounded-xl shadow-xl disabled:opacity-50 flex justify-center items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2">
                     {loading ? <Loader2 className="animate-spin" size={20} /> : <CalendarCheck size={20} />}
                     {loading ? txt.form.buttonLoading : txt.form.buttonDefault}
                 </button>
@@ -325,11 +323,11 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
             {loading && (
                 <div className="md:col-span-2 bg-stone-50 rounded-xl p-4 sm:p-6 border border-brand-accent/20 mt-2">
                     <div className="flex items-center gap-3 mb-3 text-brand-accent font-bold font-mono text-xs">
-                        <Terminal size={14} />
+                        <Sparkles size={14} className="animate-pulse" />
                         <span className="animate-pulse">{progressText}</span>
                     </div>
-                    <div className="w-full bg-stone-200 rounded-full h-2 overflow-hidden">
-                        <div className="bg-brand-accent h-2 rounded-full transition-all duration-500" style={{ width: `${progressPercent}%` }}></div>
+                    <div className="w-full bg-stone-200 rounded-full h-2.5 overflow-hidden">
+                        <div className="whimsy-progress h-2.5 rounded-full transition-all duration-500" style={{ width: `${progressPercent}%` }}></div>
                     </div>
                 </div>
             )}
@@ -337,17 +335,37 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
       </div>
 
       {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 p-4 sm:p-6 rounded-2xl flex items-center gap-4 mb-8 mx-auto shadow-sm">
-              <AlertTriangle className="shrink-0" size={20} />
-              <span className="font-medium text-base sm:text-lg">{error}</span>
+          <div className="whimsy-error bg-red-50 border border-red-200 text-red-700 p-4 sm:p-6 rounded-2xl flex items-start gap-4 mb-8 mx-auto shadow-sm">
+              <AlertTriangle className="shrink-0 mt-0.5" size={20} />
+              <div>
+                <span className="font-medium text-base sm:text-lg block">{error}</span>
+                <span className="text-sm text-red-500 mt-1 block">
+                  {language === 'de' ? 'Keine Sorge, das passiert den Besten! Versuch es gleich nochmal.' : "Don't worry, it happens to the best! Give it another go."}
+                </span>
+              </div>
           </div>
       )}
 
       {/* RESULTS SECTION */}
       <div ref={resultsRef}>
         {plan && plan.schedule && (
-            <div className="space-y-8 sm:space-y-12 animate-fade-in pb-20">
+            <div className="whimsy-success-enter space-y-8 sm:space-y-12 pb-20">
                 <div className="bg-white rounded-3xl p-5 sm:p-8 lg:p-10 border border-stone-200 shadow-xl print:shadow-none print:border-none relative overflow-hidden">
+                    {/* Confetti celebration */}
+                    <div className="whimsy-confetti print:hidden" aria-hidden="true">
+                      {Array.from({ length: 12 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="whimsy-confetti-piece"
+                          style={{
+                            left: `${8 + (i * 7.5)}%`,
+                            backgroundColor: ['#b0bf57', '#85bc22', '#fbbf24', '#60a5fa', '#f472b6', '#a78bfa'][i % 6],
+                            animationDelay: `${i * 0.08}s`,
+                            transform: `rotate(${i * 30}deg)`,
+                          }}
+                        />
+                      ))}
+                    </div>
                     <div className="relative z-10">
                         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 sm:gap-8 mb-6 sm:mb-8 border-b border-stone-100 pb-6 sm:pb-8">
                             <div>
@@ -413,11 +431,11 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
                     </div>
                 </div>
 
-                <div className="space-y-4 sm:space-y-6">
+                <div className="whimsy-stagger space-y-4 sm:space-y-6">
                     {plan.schedule.map((day, idx) => {
                         const dailyNutrients = calculateDailyNutrients(day.mix);
                         return (
-                            <div key={idx} className="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 border border-stone-200 shadow-sm hover:shadow-lg transition-shadow">
+                            <div key={idx} className="whimsy-card bg-white rounded-2xl p-4 sm:p-6 lg:p-8 border border-stone-200 shadow-sm hover:shadow-lg">
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6 border-b border-stone-100 pb-4 sm:pb-6">
                                     <h4 className="text-xl sm:text-2xl font-black text-brand-light flex items-center gap-3"><CalendarDays className="text-brand-accent" size={20} /> {day.day}</h4>
                                     <div className="flex items-center gap-2 bg-stone-100 border border-stone-200 px-3 py-1 rounded-full self-start sm:self-auto">
@@ -516,7 +534,7 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
                                 href="https://www.2die4livefoods.com/de-de/products/2die4-all-in-one-bundle"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-full bg-brand-accent hover:bg-brand-accent/90 text-white font-black py-4 px-8 rounded-xl text-center transition-all shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base"
+                                className="whimsy-cta w-full bg-brand-accent hover:bg-brand-accent/90 text-white font-black py-4 px-8 rounded-xl text-center shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base"
                             >
                                 <span>{language === 'de' ? 'Jetzt kaufen!' : 'Buy now!'}</span>
                                 <ArrowRight size={18} />
@@ -531,9 +549,9 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
                             <div className="flex items-center gap-3 text-white font-bold text-xl"><ShoppingBag className="text-brand-accent" size={20} /> <span>{txt.results.shoppingList}</span></div>
                             <span className="hidden xs:inline-block text-[10px] bg-brand-accent text-white px-3 py-1.5 rounded-lg font-black uppercase tracking-wide">{profile.duration} {txt.results.weekSupply}</span>
                         </div>
-                        <div className="p-4 sm:p-8 grid sm:grid-cols-2 gap-4 sm:gap-6 bg-stone-50/30 flex-1">
+                        <div className="whimsy-stagger p-4 sm:p-8 grid sm:grid-cols-2 gap-4 sm:gap-6 bg-stone-50/30 flex-1">
                             {shoppingList.map((item, idx) => (
-                                <div key={idx} className="flex flex-col p-4 rounded-2xl bg-white border border-stone-200 hover:border-brand-accent/50 hover:shadow-lg transition-all relative overflow-hidden">
+                                <div key={idx} className="whimsy-card flex flex-col p-4 rounded-2xl bg-white border border-stone-200 hover:border-brand-accent/50 hover:shadow-lg relative overflow-hidden">
                                     <div className="flex justify-between items-start mb-2 relative z-10">
                                         <span className="font-bold text-base sm:text-lg text-brand-light leading-tight">{item.name}</span>
                                         <span className="text-[10px] sm:text-sm font-mono font-bold text-brand-accent bg-brand-accent/10 px-2 py-0.5 rounded-md">{item.amount}g</span>
@@ -551,7 +569,7 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
                             <div className="relative z-10">
                                 <div className="flex items-center justify-between mb-6"><h4 className="font-black text-4xl text-white">ABO</h4><div className="bg-brand-accent text-white px-2 py-1 rounded-lg transform rotate-[-3deg]"><span className="font-black text-lg">-15%</span></div></div>
                                 <p className="text-xs sm:text-sm text-stone-300 mb-8 font-medium leading-relaxed">{txt.aboBox.aboDesc}</p>
-                                <a href="https://www.2die4livefoods.com/de-de/products/2die4-all-in-one-bundle" target="_blank" rel="noopener noreferrer" className="w-full bg-white text-brand-light hover:bg-brand-accent hover:text-white font-black py-4 px-6 rounded-xl text-center transition-all shadow-lg flex items-center justify-center gap-2 text-sm"><span>{txt.aboBox.aboButtonText}</span> <ArrowRight size={16} /></a>
+                                <a href="https://www.2die4livefoods.com/de-de/products/2die4-all-in-one-bundle" target="_blank" rel="noopener noreferrer" className="whimsy-cta w-full bg-white text-brand-light hover:bg-brand-accent hover:text-white font-black py-4 px-6 rounded-xl text-center shadow-lg flex items-center justify-center gap-2 text-sm"><span>{txt.aboBox.aboButtonText}</span> <ArrowRight size={16} /></a>
                                 <div className="flex items-center justify-center gap-2 text-[9px] text-stone-500 font-medium mt-4"><ShieldCheck size={10} className="text-emerald-500" /> <span>{txt.aboBox.cancelAnytime}</span></div>
                             </div>
                         </div>

@@ -1,9 +1,10 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 
 const Planner = lazy(() => import('./components/Planner'));
 const NutLibrary = lazy(() => import('./components/NutLibrary'));
 const FAQ = lazy(() => import('./components/FAQ'));
 const Sources = lazy(() => import('./components/Sources'));
+import ErrorBoundary from './components/ErrorBoundary';
 import { Brain, Menu, X, BookOpen, Globe, ChevronRight, FileText, HelpCircle } from 'lucide-react';
 import { APP_CONTENT } from './constants';
 import { Language } from './types';
@@ -26,16 +27,51 @@ const BrandLogo = () => (
   </div>
 );
 
+/**
+ * Parse language from URL path: /en/ → 'en', everything else → 'de'
+ */
+const getLanguageFromPath = (): Language => {
+  const path = window.location.pathname;
+  return path.startsWith('/en') ? 'en' : 'de';
+};
+
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>(Tab.PLANNER);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [language, setLanguage] = useState<Language>('de');
+  const [language, setLanguage] = useState<Language>(getLanguageFromPath);
 
   const txt = APP_CONTENT[language].general;
 
-  const toggleLanguage = () => {
-    setLanguage(prev => prev === 'de' ? 'en' : 'de');
-  };
+  const toggleLanguage = useCallback(() => {
+    setLanguage(prev => {
+      const next = prev === 'de' ? 'en' : 'de';
+      const newPath = `/${next}/`;
+      window.history.pushState({ language: next }, '', newPath);
+      return next;
+    });
+  }, []);
+
+  // Update canonical link tag when language changes
+  useEffect(() => {
+    const base = 'https://2die4.hypeakz.io';
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.rel = 'canonical';
+      document.head.appendChild(canonical);
+    }
+    canonical.href = `${base}/${language}/`;
+    document.documentElement.lang = language;
+  }, [language]);
+
+  // Handle browser back/forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      setLanguage(getLanguageFromPath());
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const handleTabChange = (tab: Tab) => {
     setActiveTab(tab);
@@ -114,7 +150,7 @@ const App: React.FC = () => {
                 className="flex items-center gap-2 text-sm font-bold text-brand-muted hover:text-brand-accent transition-colors"
                 title="Switch Language"
               >
-                <Globe size={18} />
+                <Globe size={18} className="whimsy-lang-flip" />
                 <span>{language.toUpperCase()}</span>
               </button>
             </div>
@@ -268,14 +304,16 @@ const App: React.FC = () => {
             </p>
         </div>
 
-        <Suspense fallback={<div className="flex justify-center items-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-4 border-brand-accent border-t-transparent"></div></div>}>
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              {activeTab === Tab.PLANNER && <Planner language={language} />}
-              {activeTab === Tab.LIBRARY && <NutLibrary language={language} />}
-              {activeTab === Tab.FAQ && <FAQ language={language} />}
-              {activeTab === Tab.SOURCES && <Sources language={language} />}
-          </div>
-        </Suspense>
+        <ErrorBoundary language={language}>
+          <Suspense fallback={<div className="flex justify-center items-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-4 border-brand-accent border-t-transparent"></div></div>}>
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {activeTab === Tab.PLANNER && <Planner language={language} />}
+                {activeTab === Tab.LIBRARY && <NutLibrary language={language} />}
+                {activeTab === Tab.FAQ && <FAQ language={language} />}
+                {activeTab === Tab.SOURCES && <Sources language={language} />}
+            </div>
+          </Suspense>
+        </ErrorBoundary>
       </main>
 
       {/* Footer */}

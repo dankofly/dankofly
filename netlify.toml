@@ -11,3 +11,20 @@
   command = "npm run dev"
   targetPort = 5173
   functions = "netlify/functions"
+
+# SPA language routing: /de/* and /en/* serve index.html
+[[redirects]]
+  from = "/de/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/en/*"
+  to = "/index.html"
+  status = 200
+
+# Root → default language
+[[redirects]]
+  from = "/"
+  to = "/de/"
+  status = 301

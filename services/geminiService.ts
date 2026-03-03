@@ -1,5 +1,6 @@
 import { getNutData, RDA } from '../constants';
 import { UserProfile, WeeklyPlan } from '../types';
+import { getProfileHash } from './dbService';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1000;
@@ -33,24 +34,10 @@ const retryWithBackoff = async <T>(
 
 /**
  * Erzeugt einen deterministischen Seed basierend auf dem Nutzerprofil.
+ * Nutzt getProfileHash() aus dbService (identische Logik, eine Quelle der Wahrheit).
  */
 const generateSeed = (user: UserProfile): number => {
-  const str = JSON.stringify({
-    age: user.age,
-    gender: user.gender,
-    lifeStage: user.lifeStage,
-    goal: user.goal,
-    weight: user.weight,
-    duration: user.duration,
-    language: user.language
-  });
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return Math.abs(hash);
+  return parseInt(getProfileHash(user), 10);
 };
 
 export const generateWeeklyPlan = async (user: UserProfile): Promise<WeeklyPlan> => {
@@ -58,47 +45,48 @@ export const generateWeeklyPlan = async (user: UserProfile): Promise<WeeklyPlan>
 };
 
 /**
- * Ziel-spezifische Nuss-Präferenzen basierend auf Nährstoffprofilen
+ * Ziel-spezifische Nuss-Präferenzen basierend auf Nährstoffprofilen.
+ * Verwendet Nuss-IDs statt lokalisierter Namen für Sprachunabhängigkeit.
  */
 const GOAL_NUT_PREFERENCES: Record<string, { primary: string[]; secondary: string[]; rationale: string }> = {
   balance: {
-    primary: ['Mandeln', 'Cashewkerne', 'Walnüsse'],
-    secondary: ['Haselnüsse', 'Kürbiskerne', 'Paranüsse'],
+    primary: ['almond', 'cashew', 'walnut'],
+    secondary: ['hazelnut', 'pumpkin', 'brazil'],
     rationale: 'Ausgewogene Mischung aller Makro- und Mikronährstoffe für allgemeine Gesundheit'
   },
   energy: {
-    primary: ['Cashewkerne', 'Mandeln', 'Haselnüsse'],
-    secondary: ['Kürbiskerne', 'Paranüsse'],
+    primary: ['cashew', 'almond', 'hazelnut'],
+    secondary: ['pumpkin', 'brazil'],
     rationale: 'B-Vitamine (B1, B6) und Magnesium für Energiestoffwechsel und Nervenfunktion'
   },
   muscle: {
-    primary: ['Kürbiskerne', 'Mandeln', 'Cashewkerne'],
-    secondary: ['Pistazien', 'Walnüsse'],
+    primary: ['pumpkin', 'almond', 'cashew'],
+    secondary: ['pistachio', 'walnut'],
     rationale: 'Hoher Proteingehalt (Kürbiskerne: 30g/100g), Zink und Magnesium für Muskelaufbau'
   },
   immunity: {
-    primary: ['Paranüsse', 'Kürbiskerne', 'Mandeln'],
-    secondary: ['Cashewkerne', 'Haselnüsse'],
+    primary: ['brazil', 'pumpkin', 'almond'],
+    secondary: ['cashew', 'hazelnut'],
     rationale: 'Selen (Paranüsse), Zink und Vitamin E für Immunfunktion und Zellschutz'
   },
   keto: {
-    primary: ['Haselnüsse', 'Pekannüsse', 'Walnüsse'],
-    secondary: ['Mandeln', 'Paranüsse'],
+    primary: ['hazelnut', 'pecan', 'walnut'],
+    secondary: ['almond', 'brazil'],
     rationale: 'Niedrige Kohlenhydrate (Haselnüsse: 5g/100g), hoher Fettanteil für ketogene Ernährung'
   },
   growth_focus: {
-    primary: ['Mandeln', 'Kürbiskerne', 'Cashewkerne'],
-    secondary: ['Haselnüsse', 'Walnüsse'],
+    primary: ['almond', 'pumpkin', 'cashew'],
+    secondary: ['hazelnut', 'walnut'],
     rationale: 'Calcium, Protein und Zink für Knochenaufbau und Wachstum bei Kindern'
   },
   concentration: {
-    primary: ['Walnüsse', 'Cashewkerne', 'Kürbiskerne'],
-    secondary: ['Mandeln', 'Haselnüsse'],
+    primary: ['walnut', 'cashew', 'pumpkin'],
+    secondary: ['almond', 'hazelnut'],
     rationale: 'Omega-3 (Walnüsse: 10g ALA/100g), B-Vitamine und Magnesium für Gehirnfunktion und Konzentration'
   },
   diet: {
-    primary: ['Kürbiskerne', 'Mandeln', 'Pistazien'],
-    secondary: ['Cashewkerne', 'Paranüsse'],
+    primary: ['pumpkin', 'almond', 'pistachio'],
+    secondary: ['cashew', 'brazil'],
     rationale: 'Maximale Mikronährstoffdichte bei minimaler Kalorienzufuhr. Kürbiskerne haben die niedrigsten Kalorien (562 kcal/100g) bei höchster Nährstoffdichte (Mg, Fe, Zn, Protein). Pistazien liefern Sättigung durch hohen Proteingehalt.'
   }
 };
@@ -115,8 +103,14 @@ const generateWeeklyPlanInternal = async (user: UserProfile): Promise<WeeklyPlan
   const dailyTotal = user.lifeStage === 'child' ? 35 : 65;
   const brazilLimit = user.lifeStage === 'child' ? 'MAX 3g (ca. 1/2 Paranuss)' : 'MAX 8g (ca. 2 Paranüsse)';
 
-  // Ziel-spezifische Präferenzen
-  const goalPrefs = GOAL_NUT_PREFERENCES[user.goal] || GOAL_NUT_PREFERENCES.balance;
+  // Ziel-spezifische Präferenzen (IDs → lokalisierte Namen)
+  const rawPrefs = GOAL_NUT_PREFERENCES[user.goal] || GOAL_NUT_PREFERENCES.balance;
+  const idToName = (id: string) => nutData.find(n => n.id === id)?.name || id;
+  const goalPrefs = {
+    primary: rawPrefs.primary.map(idToName),
+    secondary: rawPrefs.secondary.map(idToName),
+    rationale: rawPrefs.rationale
+  };
 
   const prompt = `
     Du bist ein Experte für orthomolekulare Ernährung und "Aktivierte Nüsse".
@@ -200,7 +194,7 @@ const generateWeeklyPlanInternal = async (user: UserProfile): Promise<WeeklyPlan
         prompt,
         config: {
           temperature: 0.1,
-          seed: generateSeed(user),
+          seed: generateSeed(user) || 0,
           responseMimeType: 'application/json',
         },
       }),
