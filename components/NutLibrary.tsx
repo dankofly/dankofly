@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { getNutData, RDA, APP_CONTENT, NUTRIENT_LABELS } from '../constants';
-import { Nutrients, Language } from '../types';
+import { Nutrients, Language, BlogArticle } from '../types';
+import { blogService } from '../services/blogService';
 import NutrientChart from './NutrientChart';
-import { Info, Sparkles, Target, ShoppingBag, TrendingUp, CheckCircle2, ArrowRight, Calculator, Sprout } from 'lucide-react';
+import { Info, Sparkles, Target, ShoppingBag, TrendingUp, CheckCircle2, ArrowRight, Calculator, Sprout, BookOpen } from 'lucide-react';
 
 interface NutLibraryProps {
     language: Language;
@@ -18,7 +19,13 @@ const NutLibrary: React.FC<NutLibraryProps> = ({ language }) => {
   [selectedId, nutData]);
 
   const txt = APP_CONTENT[language].nutLibrary;
+  const plannerTxt = APP_CONTENT[language].planner;
   const labels = NUTRIENT_LABELS[language];
+
+  const [blogArticles, setBlogArticles] = useState<BlogArticle[]>([]);
+  useEffect(() => {
+    blogService.getRecentArticles(3).then(setBlogArticles);
+  }, []);
 
   // Calculate nutrients based on the selected amount (slider)
   const calculatedNutrients = useMemo(() => {
@@ -291,6 +298,50 @@ const NutLibrary: React.FC<NutLibraryProps> = ({ language }) => {
                 </div>
           </div>
       </div>
+
+      {/* Blog Articles Section */}
+      {blogArticles.length > 0 && (
+          <div className="bg-white rounded-3xl shadow-xl border border-stone-200 overflow-hidden">
+              <div className="bg-brand-light p-6 flex items-center gap-3">
+                  <BookOpen className="text-brand-accent" size={20} />
+                  <h3 className="text-white font-bold text-xl">{plannerTxt.blogArticles.sectionTitle}</h3>
+              </div>
+              <div className="whimsy-stagger p-4 sm:p-8 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                  {blogArticles.map((article, idx) => (
+                      <a
+                          key={idx}
+                          href={article.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="whimsy-card group flex flex-col rounded-2xl border border-stone-200 overflow-hidden hover:border-brand-accent/50 hover:shadow-lg"
+                      >
+                          {article.imageUrl && (
+                              <div className="aspect-[16/9] overflow-hidden bg-stone-100">
+                                  <img
+                                      src={article.imageUrl}
+                                      alt={article.title}
+                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                      loading="lazy"
+                                  />
+                              </div>
+                          )}
+                          <div className="p-4 flex flex-col flex-1">
+                              <h4 className="font-bold text-brand-light text-sm sm:text-base leading-snug mb-2 group-hover:text-brand-accent transition-colors line-clamp-2">
+                                  {article.title}
+                              </h4>
+                              <p className="text-xs text-stone-500 mb-3 line-clamp-2">{article.summary}</p>
+                              <div className="mt-auto flex items-center justify-between">
+                                  <span className="text-[10px] text-stone-400">{new Date(article.publishedAt).toLocaleDateString(language === 'de' ? 'de-DE' : 'en-GB')}</span>
+                                  <span className="text-xs font-bold text-brand-accent group-hover:underline flex items-center gap-1">
+                                      {plannerTxt.blogArticles.readMore} <ArrowRight size={12} />
+                                  </span>
+                              </div>
+                          </div>
+                      </a>
+                  ))}
+              </div>
+          </div>
+      )}
     </div>
   );
 };
