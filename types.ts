@@ -55,3 +55,12 @@ export interface WeeklyPlan {
   schedule: DayPlan[];
   summary: string;
 }
+
+export interface BlogArticle {
+  title: string;
+  url: string;
+  publishedAt: string;
+  summary: string;
+  imageUrl: string | null;
+  author: string;
+}

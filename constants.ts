@@ -257,6 +257,10 @@ export const APP_CONTENT = {
           packRec: "Empfehlung",
           summaryTitle: "Optimierungs-Zusammenfassung",
           disclaimer: "Hinweis: KI-generierter Vorschlag basierend auf Durchschnittswerten. Keine medizinische Beratung."
+      },
+      blogArticles: {
+          sectionTitle: "Passende Artikel aus unserem Blog",
+          readMore: "Weiterlesen",
       }
     }
   },
@@ -365,6 +369,10 @@ export const APP_CONTENT = {
           packRec: "Recommendation",
           summaryTitle: "Optimisation Summary",
           disclaimer: "Note: AI-generated suggestion based on average values. No medical advice."
+      },
+      blogArticles: {
+          sectionTitle: "Related Articles from Our Blog",
+          readMore: "Read more",
       }
     }
   }

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { UserProfile, WeeklyPlan, DayPlan, Language, Nutrients } from '../types';
+import { UserProfile, WeeklyPlan, DayPlan, Language, Nutrients, BlogArticle } from '../types';
 import { getNutData, APP_CONTENT } from '../constants';
 import { generateWeeklyPlan } from '../services/geminiService';
 import { dbService, getProfileHash } from '../services/dbService';
 import { validateUserProfile } from '../services/validationService';
+import { blogService } from '../services/blogService';
 import NutrientChart from './NutrientChart';
-import { Brain, Loader2, CalendarCheck, AlertTriangle, Leaf, CheckCircle2, Pill, Zap, Users, User, ShoppingCart, ShoppingBag, Package, Activity, CalendarDays, ArrowRight, Target, ShieldCheck, Share2, Printer, Mail, MessageCircle, Gift, Truck, Sparkles } from 'lucide-react';
+import { Brain, Loader2, CalendarCheck, AlertTriangle, Leaf, CheckCircle2, Pill, Zap, Users, User, ShoppingCart, ShoppingBag, Package, Activity, CalendarDays, ArrowRight, Target, ShieldCheck, Share2, Printer, Mail, MessageCircle, Gift, Truck, Sparkles, BookOpen } from 'lucide-react';
 
 interface PlannerProps {
     language: Language;
@@ -40,8 +41,14 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
   const [progressPercent, setProgressPercent] = useState(0);
   const [plan, setPlan] = useState<WeeklyPlan | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [blogArticles, setBlogArticles] = useState<BlogArticle[]>([]);
 
-  // Removed: Initial plan load without profile context was loading random plans
+  // Load blog articles when a plan is generated
+  useEffect(() => {
+    if (plan) {
+      blogService.getRecentArticles(3).then(setBlogArticles);
+    }
+  }, [plan]);
 
   useEffect(() => {
     if (plan && resultsRef.current) {
@@ -580,6 +587,50 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
                         </div>
                     </div>
                 </div>
+                {/* Blog Articles Section */}
+                {blogArticles.length > 0 && (
+                    <div className="bg-white rounded-3xl shadow-xl border border-stone-200 overflow-hidden">
+                        <div className="bg-brand-light p-6 flex items-center gap-3">
+                            <BookOpen className="text-brand-accent" size={20} />
+                            <h3 className="text-white font-bold text-xl">{txt.blogArticles.sectionTitle}</h3>
+                        </div>
+                        <div className="whimsy-stagger p-4 sm:p-8 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                            {blogArticles.map((article, idx) => (
+                                <a
+                                    key={idx}
+                                    href={article.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="whimsy-card group flex flex-col rounded-2xl border border-stone-200 overflow-hidden hover:border-brand-accent/50 hover:shadow-lg"
+                                >
+                                    {article.imageUrl && (
+                                        <div className="aspect-[16/9] overflow-hidden bg-stone-100">
+                                            <img
+                                                src={article.imageUrl}
+                                                alt={article.title}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                loading="lazy"
+                                            />
+                                        </div>
+                                    )}
+                                    <div className="p-4 flex flex-col flex-1">
+                                        <h4 className="font-bold text-brand-light text-sm sm:text-base leading-snug mb-2 group-hover:text-brand-accent transition-colors line-clamp-2">
+                                            {article.title}
+                                        </h4>
+                                        <p className="text-xs text-stone-500 mb-3 line-clamp-2">{article.summary}</p>
+                                        <div className="mt-auto flex items-center justify-between">
+                                            <span className="text-[10px] text-stone-400">{new Date(article.publishedAt).toLocaleDateString(language === 'de' ? 'de-DE' : 'en-GB')}</span>
+                                            <span className="text-xs font-bold text-brand-accent group-hover:underline flex items-center gap-1">
+                                                {txt.blogArticles.readMore} <ArrowRight size={12} />
+                                            </span>
+                                        </div>
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 <div className="pt-6 border-t border-stone-200 flex flex-col md:flex-row justify-between items-center text-[10px] text-stone-400 gap-3 text-center md:text-left">
                     <p>{txt.results.disclaimer}</p>
                     <p className="font-bold text-stone-300 flex items-center gap-1.5 uppercase tracking-widest"><CheckCircle2 size={10} /> 2die4 Live Foods • NutriPlan AI</p>
