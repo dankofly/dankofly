@@ -34,6 +34,8 @@ const retryFetch = async <T>(
 /**
  * Erzeugt einen eindeutigen Hash für ein Nutzerprofil.
  * Dies garantiert, dass die Datenbank denselben Plan zurückgibt, wenn dieselben Einstellungen gewählt werden.
+ * Enthält nur Felder, die in den Generierungs-Prompt einfließen. weight/duration ändern den Plan nicht
+ * (duration skaliert nur die Einkaufsliste clientseitig) und würden Cache-Treffer unnötig verhindern.
  */
 export const getProfileHash = (user: UserProfile): string => {
   const str = JSON.stringify({
@@ -41,8 +43,6 @@ export const getProfileHash = (user: UserProfile): string => {
     gender: user.gender,
     lifeStage: user.lifeStage,
     goal: user.goal,
-    weight: user.weight,
-    duration: user.duration,
     language: user.language
   });
   
