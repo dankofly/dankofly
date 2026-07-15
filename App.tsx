@@ -18,13 +18,13 @@ enum Tab {
   SOURCES = 'sources',
 }
 
-// Custom Logo Component
+// Custom Logo Component - mobil kompakt, Desktop groß
 const BrandLogo = () => (
-  <div className="p-2">
+  <div className="p-1 md:p-2">
     <img
       src="https://www.2die4livefoods.com/cdn/shop/files/LogoStempel_Vektor_schwarz.png?v=1633334363&width=150"
       alt="2DiE4 Live Foods"
-      className="h-[100px] w-[100px] object-contain"
+      className="h-14 w-14 md:h-[100px] md:w-[100px] object-contain"
     />
   </div>
 );
@@ -176,14 +176,16 @@ const App: React.FC = () => {
 
               <div className="h-6 w-px bg-brand-border mx-2"></div>
 
-              {/* Language Toggle */}
+              {/* Language Toggle - beide Sprachen sichtbar, aktive markiert */}
               <button
                 onClick={toggleLanguage}
-                className="flex items-center gap-2 text-sm font-bold text-brand-muted hover:text-brand-accent transition-colors"
-                title="Switch Language"
+                className="flex items-center gap-1.5 text-sm font-bold transition-colors"
+                title={language === 'de' ? 'Switch to English' : 'Zu Deutsch wechseln'}
               >
-                <Globe size={18} className="whimsy-lang-flip" />
-                <span>{language.toUpperCase()}</span>
+                <Globe size={18} className="whimsy-lang-flip text-brand-muted" />
+                <span className={language === 'de' ? 'text-brand-accent' : 'text-brand-muted hover:text-brand-light'}>DE</span>
+                <span className="text-brand-border">|</span>
+                <span className={language === 'en' ? 'text-brand-accent' : 'text-brand-muted hover:text-brand-light'}>EN</span>
               </button>
             </div>
 
@@ -191,10 +193,13 @@ const App: React.FC = () => {
             <div className="md:hidden flex items-center gap-4">
                 <button
                     onClick={toggleLanguage}
-                    className="flex items-center gap-1 text-sm font-bold text-brand-muted"
+                    className="flex items-center gap-1 text-sm font-bold"
+                    title={language === 'de' ? 'Switch to English' : 'Zu Deutsch wechseln'}
                 >
-                    <Globe size={18} />
-                    {language.toUpperCase()}
+                    <Globe size={18} className="text-brand-muted" />
+                    <span className={language === 'de' ? 'text-brand-accent' : 'text-brand-muted'}>DE</span>
+                    <span className="text-brand-border">|</span>
+                    <span className={language === 'en' ? 'text-brand-accent' : 'text-brand-muted'}>EN</span>
                 </button>
                 <button 
                     onClick={() => setMobileMenuOpen(true)}

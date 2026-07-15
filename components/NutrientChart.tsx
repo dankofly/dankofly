@@ -33,8 +33,10 @@ const NutrientChart: React.FC<Props> = ({ currentIntake, language = 'de', height
     b6: { label: labels.b6, unit: 'mg', group: 'micro' },
   };
 
+  // Nur Protein + Mikros: %-RDA für Kohlenhydrate/Fett verwirrt mehr als es erklärt,
+  // die Makro-Gramm stehen im Rechner bereits in den Karten darüber.
   const keys: (keyof Nutrients)[] = [
-    'protein', 'carbs', 'fat',
+    'protein',
     'selenium', 'vitaminE', 'magnesium', 'omega3', 'zinc', 'iron', 'calcium', 'potassium', 'b1', 'b6'
   ];
 
@@ -56,14 +58,18 @@ const NutrientChart: React.FC<Props> = ({ currentIntake, language = 'de', height
 
   // Custom Label Renderer to show Checkmark when 100% is reached
   interface LabelProps {
-    x?: number;
-    y?: number;
-    width?: number;
-    height?: number;
-    value?: number;
+    x?: number | string;
+    y?: number | string;
+    width?: number | string;
+    height?: number | string;
+    value?: number | string;
   }
   const renderCustomLabel = (props: LabelProps) => {
-    const { x = 0, y = 0, width = 0, height = 0, value = 0 } = props;
+    const x = Number(props.x ?? 0);
+    const y = Number(props.y ?? 0);
+    const width = Number(props.width ?? 0);
+    const height = Number(props.height ?? 0);
+    const value = Number(props.value ?? 0);
     const isReached = value >= 100;
     // Increased font sizes for simple mode
     const fontSize = simple ? 10 : 11;
@@ -157,18 +163,26 @@ const NutrientChart: React.FC<Props> = ({ currentIntake, language = 'de', height
                 return null;
               }}
             />
-            <ReferenceLine x={100} stroke="#10b981" strokeDasharray="3 3" strokeOpacity={0.6} />
+            <ReferenceLine
+              x={100}
+              stroke="#10b981"
+              strokeDasharray="3 3"
+              strokeOpacity={0.6}
+              label={{ value: '100% RDA', position: 'insideTopRight', fontSize: 9, fill: '#78716c', fontWeight: 700 }}
+            />
             <Bar 
               dataKey="visualPercent" 
               radius={[0, 10, 10, 0]}
               animationDuration={800}
             >
               {data.map((entry, index) => {
-                let color = '#d6d3d1'; // Default grey
+                // Grün-Abstufung statt Grau: Grau liest sich als "deaktiviert",
+                // dabei ist jeder Balken ein Beitrag zur Tagesdeckung.
+                let color = '#e3e8cd'; // Pale olive (< 25%)
                 if (entry.percent >= 100) color = '#10b981'; // Optimal
-                else if (entry.percent >= 50) color = '#b0bf57'; // Good
-                else if (entry.percent >= 25) color = '#d6d3d1'; // Muted
-                
+                else if (entry.percent >= 50) color = '#85bc22'; // Stark
+                else if (entry.percent >= 25) color = '#b0bf57'; // Gut
+
                 return <Cell key={`cell-${index}`} fill={color} />;
               })}
               <LabelList 

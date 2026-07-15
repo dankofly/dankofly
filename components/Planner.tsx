@@ -24,6 +24,32 @@ interface ShoppingListItem {
     url: string;
 }
 
+// Klemmt lange LLM-Texte auf wenige Zeilen, aufklappbar.
+const ExpandableText: React.FC<{
+    text: string;
+    className?: string;
+    moreLabel: string;
+    lessLabel: string;
+}> = ({ text, className, moreLabel, lessLabel }) => {
+    const [expanded, setExpanded] = useState(false);
+    const isLong = text.length > 220;
+
+    return (
+        <div>
+            <p className={`${className || ''} ${!expanded && isLong ? 'line-clamp-3' : ''}`}>{text}</p>
+            {isLong && (
+                <button
+                    type="button"
+                    onClick={() => setExpanded(e => !e)}
+                    className="mt-2 text-sm font-bold text-brand-accent hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent rounded print:hidden"
+                >
+                    {expanded ? lessLabel : moreLabel}
+                </button>
+            )}
+        </div>
+    );
+};
+
 const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFound }) => {
   const [profile, setProfile] = useState<UserProfile>({
     age: 30,
@@ -284,7 +310,7 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
   };
 
   const handleNativeShare = async () => {
-    if (navigator.share) {
+    if (typeof navigator.share === 'function') {
       try {
         await navigator.share({
           title: plan?.title || 'NutriPlan',
@@ -296,6 +322,49 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
       }
     }
   };
+
+  // Share-Leiste, oben im Ergebnis-Header und unten nach den Blog-Artikeln.
+  const shareBar = (
+    <div className="flex flex-wrap items-center gap-2 sm:gap-3 print:hidden">
+        <span className="text-[11px] font-bold text-stone-500 uppercase tracking-widest mr-2">
+            {language === 'de' ? 'Teilen' : 'Share'}:
+        </span>
+        <button
+            onClick={handleWhatsAppShare}
+            className="flex items-center gap-2 px-3 py-2 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-lg text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2"
+            title="WhatsApp"
+        >
+            <MessageCircle size={16} />
+            <span className="hidden sm:inline">WhatsApp</span>
+        </button>
+        <button
+            onClick={handleEmailShare}
+            className="flex items-center gap-2 px-3 py-2 bg-stone-600 hover:bg-stone-700 text-white rounded-lg text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-600 focus-visible:ring-offset-2"
+            title="Email"
+        >
+            <Mail size={16} />
+            <span className="hidden sm:inline">Email</span>
+        </button>
+        <button
+            onClick={handlePrint}
+            className="flex items-center gap-2 px-3 py-2 bg-stone-200 hover:bg-stone-300 text-stone-700 rounded-lg text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
+            title={language === 'de' ? 'Drucken' : 'Print'}
+        >
+            <Printer size={16} />
+            <span className="hidden sm:inline">{language === 'de' ? 'Drucken' : 'Print'}</span>
+        </button>
+        {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
+            <button
+                onClick={handleNativeShare}
+                className="flex items-center gap-2 px-3 py-2 bg-brand-accent hover:bg-brand-accent/80 text-white rounded-lg text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2"
+                title={language === 'de' ? 'Mehr...' : 'More...'}
+            >
+                <Share2 size={16} />
+                <span className="hidden sm:inline">{language === 'de' ? 'Mehr' : 'More'}</span>
+            </button>
+        )}
+    </div>
+  );
 
   return (
     <div className="max-w-5xl mx-auto px-2 sm:px-4">
@@ -361,15 +430,9 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
                 </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                <div>
-                    <label htmlFor="age-input" className="block text-brand-light mb-2 text-xs font-bold uppercase tracking-wider">{txt.form.age}</label>
-                    <input id="age-input" type="number" value={profile.age} onChange={(e) => setProfile({...profile, age: parseInt(e.target.value) || 0})} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 sm:p-4 text-brand-light font-bold focus:ring-2 focus:ring-brand-accent focus:outline-none" min={profile.lifeStage === 'child' ? "3" : "18"} />
-                </div>
-                <div>
-                    <label htmlFor="weight-input" className="block text-brand-light mb-2 text-xs font-bold uppercase tracking-wider">{txt.form.weight}</label>
-                    <input id="weight-input" type="number" value={profile.weight} onChange={(e) => setProfile({...profile, weight: parseInt(e.target.value) || 0})} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 sm:p-4 text-brand-light font-bold focus:ring-2 focus:ring-brand-accent focus:outline-none" min="10" />
-                </div>
+            <div>
+                <label htmlFor="age-input" className="block text-brand-light mb-2 text-xs font-bold uppercase tracking-wider">{txt.form.age}</label>
+                <input id="age-input" type="number" value={profile.age} onChange={(e) => setProfile({...profile, age: parseInt(e.target.value) || 0})} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 sm:p-4 text-brand-light font-bold focus:ring-2 focus:ring-brand-accent focus:outline-none" min={profile.lifeStage === 'child' ? "3" : "18"} />
             </div>
 
             <div className="md:col-span-1">
@@ -438,64 +501,30 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
                         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 sm:gap-8 mb-6 sm:mb-8 border-b border-stone-100 pb-6 sm:pb-8">
                             <div>
                                 <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
-                                    <span className="bg-brand-accent text-white px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-md">{txt.results.title}</span>
-                                    {profile.lifeStage === 'child' && <span className="bg-amber-100 text-amber-700 px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest">Kids Edition</span>}
+                                    <span className="bg-brand-accent text-white px-3 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-widest shadow-md">{txt.results.title}</span>
+                                    {profile.lifeStage === 'child' && <span className="bg-amber-100 text-amber-700 px-3 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-widest">Kids Edition</span>}
                                 </div>
                                 <h3 className="text-3xl sm:text-4xl md:text-5xl font-black text-brand-light tracking-tight mb-4">{plan.title}</h3>
-                                <p className="text-stone-600 text-lg sm:text-xl leading-relaxed font-medium max-w-3xl">{plan.strategy}</p>
+                                <ExpandableText
+                                    text={plan.strategy}
+                                    className="text-stone-600 text-lg sm:text-xl leading-relaxed font-medium max-w-3xl"
+                                    moreLabel={txt.results.showMore}
+                                    lessLabel={txt.results.showLess}
+                                />
                             </div>
                             <div className="bg-stone-50 rounded-2xl p-5 border border-stone-100 min-w-full md:min-w-[240px]">
-                                <div className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-3">{txt.results.createdFor}</div>
+                                <div className="text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-3">{txt.results.createdFor}</div>
                                 <div className="flex items-center gap-3">
                                     <div className="bg-white p-2 rounded-lg border border-stone-200">{profile.lifeStage === 'child' ? <Users size={18} className="text-brand-accent"/> : <User size={18} className="text-brand-accent"/>}</div>
                                     <div>
                                         <div className="font-black text-brand-light text-base sm:text-lg">{profile.lifeStage === 'child' ? options.child : options.adult}</div>
-                                        <div className="text-[10px] sm:text-xs font-medium text-stone-500">{profile.gender}, {profile.age}y</div>
+                                        <div className="text-[11px] sm:text-xs font-medium text-stone-500">{options[profile.gender]}, {profile.age} {txt.results.years}</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Share Buttons */}
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 print:hidden">
-                            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mr-2">
-                                {language === 'de' ? 'Teilen' : 'Share'}:
-                            </span>
-                            <button
-                                onClick={handleWhatsAppShare}
-                                className="flex items-center gap-2 px-3 py-2 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-lg text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2"
-                                title="WhatsApp"
-                            >
-                                <MessageCircle size={16} />
-                                <span className="hidden sm:inline">WhatsApp</span>
-                            </button>
-                            <button
-                                onClick={handleEmailShare}
-                                className="flex items-center gap-2 px-3 py-2 bg-stone-600 hover:bg-stone-700 text-white rounded-lg text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-600 focus-visible:ring-offset-2"
-                                title="Email"
-                            >
-                                <Mail size={16} />
-                                <span className="hidden sm:inline">Email</span>
-                            </button>
-                            <button
-                                onClick={handlePrint}
-                                className="flex items-center gap-2 px-3 py-2 bg-stone-200 hover:bg-stone-300 text-stone-700 rounded-lg text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
-                                title={language === 'de' ? 'Drucken' : 'Print'}
-                            >
-                                <Printer size={16} />
-                                <span className="hidden sm:inline">{language === 'de' ? 'Drucken' : 'Print'}</span>
-                            </button>
-                            {typeof navigator !== 'undefined' && navigator.share && (
-                                <button
-                                    onClick={handleNativeShare}
-                                    className="flex items-center gap-2 px-3 py-2 bg-brand-accent hover:bg-brand-accent/80 text-white rounded-lg text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2"
-                                    title={language === 'de' ? 'Mehr...' : 'More...'}
-                                >
-                                    <Share2 size={16} />
-                                    <span className="hidden sm:inline">{language === 'de' ? 'Mehr' : 'More'}</span>
-                                </button>
-                            )}
-                        </div>
+                        {shareBar}
                     </div>
                 </div>
 
@@ -508,13 +537,13 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
                                     <h4 className="text-xl sm:text-2xl font-black text-brand-light flex items-center gap-3"><CalendarDays className="text-brand-accent" size={20} /> {day.day}</h4>
                                     <div className="flex items-center gap-2 bg-stone-100 border border-stone-200 px-3 py-1 rounded-full self-start sm:self-auto">
                                         <Target size={12} className="text-stone-500" />
-                                        <span className="text-[9px] sm:text-[10px] font-black text-stone-500 uppercase tracking-widest">{day.focus}</span>
+                                        <span className="text-[11px] sm:text-[11px] font-black text-stone-500 uppercase tracking-widest">{day.focus}</span>
                                     </div>
                                 </div>
                                 <div className="grid lg:grid-cols-2 gap-6 lg:gap-12">
                                     <div className="flex flex-col h-full justify-between">
                                         <div>
-                                            <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-3">MIX</p>
+                                            <p className="text-[11px] font-black text-stone-500 uppercase tracking-widest mb-3">MIX</p>
                                             <div className="space-y-2 mb-6 sm:mb-8">
                                                 {day.mix && day.mix.map((item, i) => (
                                                     <div key={i} className="flex items-start gap-3">
@@ -527,7 +556,7 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
                                         {day.supplement && (
                                             <div className="bg-[#fffbeb] rounded-xl p-4 border border-[#fef3c7] mt-auto">
                                                 <div className="flex gap-3"><Zap className="text-amber-500 shrink-0 mt-0.5" size={18} fill="currentColor" />
-                                                    <div><p className="text-[10px] font-black text-amber-700 uppercase mb-1 tracking-wider">Bio-Hack</p>
+                                                    <div><p className="text-[11px] font-black text-amber-700 uppercase mb-1 tracking-wider">Bio-Hack</p>
                                                         <p className="text-xs sm:text-sm font-medium text-amber-900/90 leading-relaxed">{day.supplement}</p>
                                                     </div>
                                                 </div>
@@ -535,7 +564,7 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
                                         )}
                                     </div>
                                     <div className="lg:border-l border-stone-100 lg:pl-12 flex flex-col pt-4 lg:pt-0">
-                                        <div className="flex items-center gap-2 mb-4"><Activity size={14} className="text-stone-400" /><h4 className="text-[10px] font-black text-stone-400 uppercase tracking-widest">{language === 'de' ? 'Nährwert-Profil' : 'Nutrient Profile'}</h4></div>
+                                        <div className="flex items-center gap-2 mb-4"><Activity size={14} className="text-stone-500" /><h4 className="text-[11px] font-black text-stone-500 uppercase tracking-widest">{language === 'de' ? 'Nährwert-Profil' : 'Nutrient Profile'}</h4></div>
                                         <div className="flex-1 min-h-[180px] sm:min-h-[250px]">
                                             <NutrientChart currentIntake={dailyNutrients} language={language} simple={true} height="100%" />
                                         </div>
@@ -549,6 +578,66 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
                 {/* Email Capture: Plan-Link + Rabattcode */}
                 <EmailCapture language={language} planId={planId} goal={profile.goal} />
 
+                <div className="grid lg:grid-cols-12 gap-6 sm:gap-8">
+                    <div className="lg:col-span-7 bg-white rounded-3xl shadow-xl border border-stone-200 overflow-hidden flex flex-col">
+                        <div className="bg-brand-light p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+                            <div className="flex items-center gap-3 text-white font-bold text-xl"><ShoppingBag className="text-brand-accent" size={20} /> <span>{txt.results.shoppingList}</span></div>
+                            <div className="flex items-center gap-3">
+                                <span className="hidden xs:inline-block text-[11px] bg-brand-accent text-white px-3 py-1.5 rounded-lg font-black uppercase tracking-wide">{profile.duration} {txt.results.weekSupply}</span>
+                                {cartUrl && (
+                                    <a
+                                        href={cartUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="whimsy-cta flex items-center gap-2 bg-white text-brand-light hover:bg-brand-accent hover:text-white px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wide shadow-md transition-colors print:hidden"
+                                    >
+                                        <ShoppingCart size={14} />
+                                        {txt.results.addAllToCart}
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+                        {cart.missing.length > 0 && cartUrl && (
+                            <p className="px-6 py-2 bg-stone-100 text-[11px] text-stone-500 font-medium border-b border-stone-200 print:hidden">
+                                {txt.results.cartMissingNote}: {cart.missing.join(', ')}
+                            </p>
+                        )}
+                        <div className="whimsy-stagger p-4 sm:p-8 grid sm:grid-cols-2 gap-4 sm:gap-6 bg-stone-50/30 flex-1">
+                            {shoppingList.map((item, idx) => (
+                                <div key={idx} className="whimsy-card flex flex-col p-4 rounded-2xl bg-white border border-stone-200 hover:border-brand-accent/50 hover:shadow-lg relative overflow-hidden">
+                                    <div className="flex justify-between items-start mb-2 relative z-10">
+                                        <span className="font-bold text-base sm:text-lg text-brand-light leading-tight">{item.name}</span>
+                                        <span className="text-[11px] sm:text-sm font-mono font-bold text-brand-accent bg-brand-accent/10 px-2 py-0.5 rounded-md">{item.amount}g</span>
+                                    </div>
+                                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-stone-100">
+                                        <div className="flex items-center gap-1.5 text-[11px] text-stone-500 font-bold uppercase tracking-wide"><Package size={12} /> <span>{txt.results.packRec}: <strong className="text-stone-900">{item.packRecommendation}</strong></span></div>
+                                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="bg-brand-light hover:bg-brand-accent text-white text-[11px] font-bold uppercase px-2.5 py-1 rounded-lg shadow-md shrink-0"><ShoppingCart size={10} /> Shop</a>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="lg:col-span-5 flex flex-col gap-6">
+                        <div className="bg-[#1c1917] text-white rounded-3xl p-6 shadow-xl relative border border-stone-800">
+                            <div className="relative z-10">
+                                <div className="flex items-center justify-between mb-6"><h4 className="font-black text-4xl text-white">ABO</h4><div className="bg-brand-accent text-white px-2 py-1 rounded-lg transform rotate-[-3deg]"><span className="font-black text-lg">-15%</span></div></div>
+                                <p className="text-xs sm:text-sm text-stone-300 mb-8 font-medium leading-relaxed">{txt.aboBox.aboDesc}</p>
+                                <a href={withUtm("https://www.2die4livefoods.com/pages/2die4-live-foods-nuss-abo", 'planner-abo')} target="_blank" rel="noopener noreferrer" className="whimsy-cta w-full bg-white text-brand-light hover:bg-brand-accent hover:text-white font-black py-4 px-6 rounded-xl text-center shadow-lg flex items-center justify-center gap-2 text-sm"><span>{txt.aboBox.aboButtonText}</span> <ArrowRight size={16} /></a>
+                                <div className="flex items-center justify-center gap-2 text-[11px] text-stone-500 font-medium mt-4"><ShieldCheck size={10} className="text-emerald-500" /> <span>{txt.aboBox.cancelAnytime}</span></div>
+                            </div>
+                        </div>
+                        <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-xl flex-1 flex flex-col justify-center">
+                            <div className="bg-stone-50 w-10 h-10 rounded-xl flex items-center justify-center mb-3 border border-stone-100"><Pill className="text-brand-accent" size={20} /></div>
+                            <h4 className="text-base sm:text-lg font-bold text-brand-light mb-2">{txt.results.summaryTitle}</h4>
+                            <ExpandableText
+                                text={plan.summary}
+                                className="text-stone-600 leading-relaxed text-xs sm:text-sm"
+                                moreLabel={txt.results.showMore}
+                                lessLabel={txt.results.showLess}
+                            />
+                        </div>
+                    </div>
+                </div>
                 {/* ALL-IN-ONE Set Promo Box */}
                 <div className="bg-gradient-to-br from-stone-50 to-stone-100 rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-xl overflow-hidden relative">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
@@ -599,7 +688,7 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
                         <div className="flex flex-col items-center gap-4 lg:min-w-[200px]">
                             <div className="text-center">
                                 <div className="text-3xl sm:text-4xl font-black text-brand-accent">49,90 €</div>
-                                <div className="text-sm text-stone-400 line-through">64,30 €</div>
+                                <div className="text-sm text-stone-500 line-through">64,30 €</div>
                             </div>
                             <a
                                 href={withUtm("https://www.2die4livefoods.com/de-de/products/2die4-all-in-one-bundle", 'planner-bundle')}
@@ -614,61 +703,6 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
                     </div>
                 </div>
 
-                <div className="grid lg:grid-cols-12 gap-6 sm:gap-8">
-                    <div className="lg:col-span-7 bg-white rounded-3xl shadow-xl border border-stone-200 overflow-hidden flex flex-col">
-                        <div className="bg-brand-light p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
-                            <div className="flex items-center gap-3 text-white font-bold text-xl"><ShoppingBag className="text-brand-accent" size={20} /> <span>{txt.results.shoppingList}</span></div>
-                            <div className="flex items-center gap-3">
-                                <span className="hidden xs:inline-block text-[10px] bg-brand-accent text-white px-3 py-1.5 rounded-lg font-black uppercase tracking-wide">{profile.duration} {txt.results.weekSupply}</span>
-                                {cartUrl && (
-                                    <a
-                                        href={cartUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="whimsy-cta flex items-center gap-2 bg-white text-brand-light hover:bg-brand-accent hover:text-white px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wide shadow-md transition-colors print:hidden"
-                                    >
-                                        <ShoppingCart size={14} />
-                                        {txt.results.addAllToCart}
-                                    </a>
-                                )}
-                            </div>
-                        </div>
-                        {cart.missing.length > 0 && cartUrl && (
-                            <p className="px-6 py-2 bg-stone-100 text-[11px] text-stone-500 font-medium border-b border-stone-200 print:hidden">
-                                {txt.results.cartMissingNote}: {cart.missing.join(', ')}
-                            </p>
-                        )}
-                        <div className="whimsy-stagger p-4 sm:p-8 grid sm:grid-cols-2 gap-4 sm:gap-6 bg-stone-50/30 flex-1">
-                            {shoppingList.map((item, idx) => (
-                                <div key={idx} className="whimsy-card flex flex-col p-4 rounded-2xl bg-white border border-stone-200 hover:border-brand-accent/50 hover:shadow-lg relative overflow-hidden">
-                                    <div className="flex justify-between items-start mb-2 relative z-10">
-                                        <span className="font-bold text-base sm:text-lg text-brand-light leading-tight">{item.name}</span>
-                                        <span className="text-[10px] sm:text-sm font-mono font-bold text-brand-accent bg-brand-accent/10 px-2 py-0.5 rounded-md">{item.amount}g</span>
-                                    </div>
-                                    <div className="flex items-center justify-between mt-auto pt-3 border-t border-stone-100">
-                                        <div className="flex items-center gap-1.5 text-[9px] text-stone-500 font-bold uppercase tracking-wide"><Package size={12} /> <span>{txt.results.packRec}: <strong className="text-stone-900">{item.packRecommendation}</strong></span></div>
-                                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="bg-brand-light hover:bg-brand-accent text-white text-[9px] font-bold uppercase px-2.5 py-1 rounded-lg shadow-md shrink-0"><ShoppingCart size={10} /> Shop</a>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="lg:col-span-5 flex flex-col gap-6">
-                        <div className="bg-[#1c1917] text-white rounded-3xl p-6 shadow-xl relative border border-stone-800">
-                            <div className="relative z-10">
-                                <div className="flex items-center justify-between mb-6"><h4 className="font-black text-4xl text-white">ABO</h4><div className="bg-brand-accent text-white px-2 py-1 rounded-lg transform rotate-[-3deg]"><span className="font-black text-lg">-15%</span></div></div>
-                                <p className="text-xs sm:text-sm text-stone-300 mb-8 font-medium leading-relaxed">{txt.aboBox.aboDesc}</p>
-                                <a href={withUtm("https://www.2die4livefoods.com/de-de/products/2die4-all-in-one-bundle", 'planner-abo')} target="_blank" rel="noopener noreferrer" className="whimsy-cta w-full bg-white text-brand-light hover:bg-brand-accent hover:text-white font-black py-4 px-6 rounded-xl text-center shadow-lg flex items-center justify-center gap-2 text-sm"><span>{txt.aboBox.aboButtonText}</span> <ArrowRight size={16} /></a>
-                                <div className="flex items-center justify-center gap-2 text-[9px] text-stone-500 font-medium mt-4"><ShieldCheck size={10} className="text-emerald-500" /> <span>{txt.aboBox.cancelAnytime}</span></div>
-                            </div>
-                        </div>
-                        <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-xl flex-1 flex flex-col justify-center">
-                            <div className="bg-stone-50 w-10 h-10 rounded-xl flex items-center justify-center mb-3 border border-stone-100"><Pill className="text-brand-accent" size={20} /></div>
-                            <h4 className="text-base sm:text-lg font-bold text-brand-light mb-2">{txt.results.summaryTitle}</h4>
-                            <p className="text-stone-600 leading-relaxed text-xs sm:text-sm">{plan.summary}</p>
-                        </div>
-                    </div>
-                </div>
                 {/* Blog Articles Section */}
                 {blogArticles.length > 0 && (
                     <div className="bg-white rounded-3xl shadow-xl border border-stone-200 overflow-hidden">
@@ -701,7 +735,7 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
                                         </h4>
                                         <p className="text-xs text-stone-500 mb-3 line-clamp-2">{article.summary}</p>
                                         <div className="mt-auto flex items-center justify-between">
-                                            <span className="text-[10px] text-stone-400">{new Date(article.publishedAt).toLocaleDateString(language === 'de' ? 'de-DE' : 'en-GB')}</span>
+                                            <span className="text-[11px] text-stone-500">{new Date(article.publishedAt).toLocaleDateString(language === 'de' ? 'de-DE' : 'en-GB')}</span>
                                             <span className="text-xs font-bold text-brand-accent group-hover:underline flex items-center gap-1">
                                                 {txt.blogArticles.readMore} <ArrowRight size={12} />
                                             </span>
@@ -713,7 +747,10 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
                     </div>
                 )}
 
-                <div className="pt-6 border-t border-stone-200 flex flex-col md:flex-row justify-between items-center text-[10px] text-stone-400 gap-3 text-center md:text-left">
+                {/* Share-Leiste am Seitenende */}
+                <div className="flex justify-center">{shareBar}</div>
+
+                <div className="pt-6 border-t border-stone-200 flex flex-col md:flex-row justify-between items-center text-[11px] text-stone-500 gap-3 text-center md:text-left">
                     <p>{txt.results.disclaimer}</p>
                     <p className="font-bold text-stone-300 flex items-center gap-1.5 uppercase tracking-widest"><CheckCircle2 size={10} /> 2die4 Live Foods • NutriPlan AI</p>
                 </div>

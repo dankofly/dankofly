@@ -37,7 +37,12 @@ function extractImageUrl(html: string): string | null {
 }
 
 function stripHtml(html: string): string {
-  return html.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim();
+  return html
+    .replace(/<!\[CDATA\[/g, '')
+    .replace(/\]\]>/g, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .trim();
 }
 
 function parseAtomFeed(xml: string, limit: number): BlogArticle[] {
@@ -53,7 +58,11 @@ function parseAtomFeed(xml: string, limit: number): BlogArticle[] {
     const author = extractText(entry, 'name');
     const summaryHtml = extractText(entry, 'summary');
     const contentHtml = extractText(entry, 'content');
-    const summary = stripHtml(summaryHtml).slice(0, 200);
+    // Shopify-Excerpts sind oft leer oder nur ein "Mehr"-Linkrest; dann aus dem Content bauen.
+    let summary = stripHtml(summaryHtml).slice(0, 200);
+    if (summary.length < 20) {
+      summary = stripHtml(contentHtml).slice(0, 200);
+    }
     const imageUrl = extractImageUrl(contentHtml) || extractImageUrl(summaryHtml);
 
     if (title && url) {

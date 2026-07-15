@@ -12,7 +12,7 @@ test.describe('NutriPlan App', () => {
   test('should display navigation tabs', async ({ page }) => {
     // Check for Planner and Library tabs
     const plannerTab = page.getByRole('button', { name: /planer|planner/i });
-    const libraryTab = page.getByRole('button', { name: /bibliothek|library/i });
+    const libraryTab = page.getByRole('button', { name: /rechner|calculator/i }).first();
 
     await expect(plannerTab).toBeVisible();
     await expect(libraryTab).toBeVisible();
@@ -20,7 +20,7 @@ test.describe('NutriPlan App', () => {
 
   test('should switch language', async ({ page }) => {
     // Find language toggle
-    const langButton = page.getByRole('button', { name: /de|en/i });
+    const langButton = page.getByRole('button', { name: 'DE | EN' });
     await langButton.click();
 
     // Verify language changed
@@ -35,11 +35,11 @@ test.describe('NutriPlan App', () => {
   });
 
   test('should navigate to nut library', async ({ page }) => {
-    const libraryTab = page.getByRole('button', { name: /bibliothek|library/i });
+    const libraryTab = page.getByRole('button', { name: /rechner|calculator/i }).first();
     await libraryTab.click();
 
     // Should show nut selection
-    await expect(page.getByText(/mandel|almond/i)).toBeVisible();
+    await expect(page.getByText(/mandel|almond/i).first()).toBeVisible();
   });
 
   test('should generate nutrition plan', async ({ page }) => {
@@ -55,22 +55,22 @@ test.describe('NutriPlan App', () => {
     await submitButton.click();
 
     // Wait for loading to complete (with timeout for API)
-    await expect(page.getByText(/lade|loading/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/schnüffle|analysiere|sniffing|analysing/i).first()).toBeVisible({ timeout: 5000 });
   });
 });
 
 test.describe('NutLibrary Component', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    const libraryTab = page.getByRole('button', { name: /bibliothek|library/i });
+    const libraryTab = page.getByRole('button', { name: /rechner|calculator/i }).first();
     await libraryTab.click();
   });
 
   test('should display nut cards', async ({ page }) => {
-    const nutTypes = ['cashew', 'mandel', 'walnuss', 'haselnuss'];
+    const nutTypes = ['cashew', 'mandeln', 'walnüsse', 'haselnüsse'];
 
     for (const nut of nutTypes) {
-      await expect(page.getByText(new RegExp(nut, 'i'))).toBeVisible();
+      await expect(page.getByText(new RegExp(nut, 'i')).first()).toBeVisible();
     }
   });
 
@@ -90,7 +90,7 @@ test.describe('NutLibrary Component', () => {
     await slider.fill('50');
 
     // Should show nutrient values
-    await expect(page.getByText(/magnesium|protein|eiweiß/i)).toBeVisible();
+    await expect(page.getByText(/magnesium|protein|eiweiß/i).first()).toBeVisible();
   });
 });
 
@@ -100,10 +100,10 @@ test.describe('Responsive Design', () => {
     await page.goto('/');
 
     // Mobile menu should be accessible
-    const menuButton = page.getByRole('button', { name: /menu|menü/i });
+    const menuButton = page.getByRole('button', { name: /open menu/i });
     if (await menuButton.isVisible()) {
       await menuButton.click();
-      await expect(page.getByRole('navigation')).toBeVisible();
+      await expect(page.getByRole('navigation').first()).toBeVisible();
     }
   });
 });

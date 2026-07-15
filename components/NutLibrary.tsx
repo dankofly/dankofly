@@ -157,14 +157,14 @@ const NutLibrary: React.FC<NutLibraryProps> = ({ language }) => {
                         {txt.powerValuesTitle} ({language === 'de' ? 'für' : 'for'} {amount}g)
                     </h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {/* Energy Card - Updated to Green */}
-                        <div className="bg-brand-accent text-white rounded-xl p-4 border border-brand-accent shadow-sm flex flex-col justify-between">
-                            <span className="block text-white/80 text-xs font-bold uppercase mb-1">{labels.energy}</span>
+                        {/* Energy Card - neutral, damit die Mikronährstoffe die Bühne bekommen */}
+                        <div className="bg-white rounded-xl p-4 border border-brand-border shadow-sm flex flex-col justify-between">
+                            <span className="block text-brand-muted text-xs font-bold uppercase mb-1">{labels.energy}</span>
                             <div className="flex items-baseline gap-1">
-                                <span className="text-3xl font-black">{calculatedNutrients.energy.toFixed(0)}</span>
-                                <span className="text-xs font-bold">kcal</span>
+                                <span className="text-2xl font-black text-brand-light">{calculatedNutrients.energy.toFixed(0)}</span>
+                                <span className="text-xs font-bold text-brand-light">kcal</span>
                             </div>
-                            <div className="mt-2 text-[10px] font-bold inline-block px-1.5 py-0.5 rounded bg-white/20 text-white w-fit">
+                            <div className="mt-2 text-[11px] font-bold inline-block px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 w-fit">
                                 {language === 'de' ? 'Brennwert' : 'Energy'}
                             </div>
                         </div>
@@ -185,7 +185,7 @@ const NutLibrary: React.FC<NutLibraryProps> = ({ language }) => {
                                         </span>
                                     </div>
                                     {stat.sub && (
-                                        <p className="text-[10px] text-stone-400 mt-1 font-medium">{stat.sub}</p>
+                                        <p className="text-[11px] text-stone-500 mt-1 font-medium">{stat.sub}</p>
                                     )}
                                 </div>
                             </div>
@@ -195,13 +195,13 @@ const NutLibrary: React.FC<NutLibraryProps> = ({ language }) => {
                     {/* Micros Row */}
                      <div className="grid grid-cols-3 gap-4 mt-4">
                         {topNutrients.map((stat, idx) => (
-                            <div key={`micro-${idx}`} className="bg-stone-50 rounded-xl p-3 border border-stone-100 flex flex-col justify-center text-center">
-                                <span className="block text-brand-muted text-[10px] font-bold uppercase mb-1">{labels[stat.key as keyof typeof labels] || stat.label}</span>
+                            <div key={`micro-${idx}`} className="bg-brand-accent/10 rounded-xl p-3 border border-brand-accent/20 flex flex-col justify-center text-center">
+                                <span className="block text-brand-muted text-[11px] font-bold uppercase mb-1">{labels[stat.key as keyof typeof labels] || stat.label}</span>
                                 <div className="text-brand-accent font-black text-lg">
-                                    {stat.percent > 100 ? '>100' : stat.percent.toFixed(0)}% <span className="text-xs text-stone-400">RDA</span>
+                                    {stat.percent > 100 ? '>100' : stat.percent.toFixed(0)}% <span className="text-xs text-stone-500">RDA</span>
                                 </div>
-                                <span className="text-[10px] text-stone-500 font-mono">
-                                    {stat.value.toLocaleString(undefined, { maximumFractionDigits: 1 })} {stat.key === 'selenium' ? 'µg' : 'mg'}
+                                <span className="text-[11px] text-stone-500 font-mono">
+                                    {stat.value.toLocaleString(undefined, { maximumFractionDigits: 1 })} {stat.key === 'selenium' ? 'µg' : stat.key === 'omega3' ? 'g' : 'mg'}
                                 </span>
                             </div>
                         ))}
@@ -332,7 +332,7 @@ const NutLibrary: React.FC<NutLibraryProps> = ({ language }) => {
                               </h4>
                               <p className="text-xs text-stone-500 mb-3 line-clamp-2">{article.summary}</p>
                               <div className="mt-auto flex items-center justify-between">
-                                  <span className="text-[10px] text-stone-400">{new Date(article.publishedAt).toLocaleDateString(language === 'de' ? 'de-DE' : 'en-GB')}</span>
+                                  <span className="text-[11px] text-stone-500">{new Date(article.publishedAt).toLocaleDateString(language === 'de' ? 'de-DE' : 'en-GB')}</span>
                                   <span className="text-xs font-bold text-brand-accent group-hover:underline flex items-center gap-1">
                                       {plannerTxt.blogArticles.readMore} <ArrowRight size={12} />
                                   </span>

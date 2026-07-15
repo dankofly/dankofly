@@ -174,7 +174,7 @@ export const APP_CONTENT = {
       faqTab: "FAQ's",
       sourcesTab: "Quellen",
       plannerHeader: "Dein natürlicher Nährstoff-Plan",
-      plannerSubHeader: "Versorge mit aktivierten Nüssen deinen Körper mit natürlichen Nährstoffen die er wirklich braucht. Erstelle einen 7-Tage-Ernährungsplan mit aktivierten Bio-Nüssen von 2DiE4 – entwickelt für natürliche Nährstoffversorgung ohne synthetische Zusätze.",
+      plannerSubHeader: "Dein 7-Tage-Plan mit aktivierten Bio-Nüssen. Natürliche Nährstoffe statt synthetischer Präparate, fertig in 30 Sekunden.",
       libraryHeader: "Was steckt in den aktivierten Bio Nüssen von 2DiE4?",
       librarySubHeader: "Erfahre alles über die Nährstoffe und gesundheitlichen Vorteile unserer aktivierten Nüsse",
       faqHeader: "Häufig gestellte Fragen",
@@ -218,14 +218,14 @@ export const APP_CONTENT = {
     },
     planner: {
       title: "Nuss Nutri Planer",
-      subtitle: "Lass dir von unserer KI berechnen, wie du deine Ernährung mit aktivierten Nüssen optimierst. Spezielle Profile für Kinder berücksichtigen Wachstum und Konzentration.",
+      subtitle: "Vier Angaben, und die KI baut deinen Wochenplan. Mit eigenen Profilen für Kinder.",
       form: {
         lifeStage: "Lebensphase",
         goal: "Dein Ziel",
         gender: "Geschlecht",
         age: "Alter",
         weight: "Gewicht (kg)",
-        duration: "Dauer (Wochen)",
+        duration: "Vorrat für",
         buttonLoading: "Analysiere Nährstoffbedarf...",
         buttonDefault: "Optimierten Plan generieren",
         options: {
@@ -273,7 +273,10 @@ export const APP_CONTENT = {
           summaryTitle: "Optimierungs-Zusammenfassung",
           disclaimer: "Hinweis: KI-generierter Vorschlag basierend auf Durchschnittswerten. Keine medizinische Beratung.",
           addAllToCart: "Alles in den Warenkorb",
-          cartMissingNote: "Nicht im Warenkorb-Link enthalten, bitte über die Einzel-Buttons bestellen"
+          cartMissingNote: "Nicht im Warenkorb-Link enthalten, bitte über die Einzel-Buttons bestellen",
+          showMore: "Mehr anzeigen",
+          showLess: "Weniger anzeigen",
+          years: "Jahre"
       },
       blogArticles: {
           sectionTitle: "Passende Artikel aus unserem Blog",
@@ -309,7 +312,7 @@ export const APP_CONTENT = {
       faqTab: "FAQ's",
       sourcesTab: "Sources",
       plannerHeader: "Your Natural Nutrient Plan",
-      plannerSubHeader: "Get all the nutrients your body really needs with activated nuts. Create a 7-day nutrition plan with activated organic nuts from 2DiE4 – designed for natural nutrient supply without synthetic additives.",
+      plannerSubHeader: "Your 7-day plan with activated organic nuts. Natural nutrients instead of synthetic supplements, ready in 30 seconds.",
       libraryHeader: "What's inside 2DiE4 Activated Organic Nuts?",
       librarySubHeader: "Learn all about the nutrients and health benefits of our activated nuts.",
       faqHeader: "Frequently Asked Questions",
@@ -353,14 +356,14 @@ export const APP_CONTENT = {
     },
     planner: {
       title: "Nut Nutri Planner",
-      subtitle: "Let our AI calculate how to optimise your diet with activated nuts. Special profiles for children take growth and concentration into account.",
+      subtitle: "Four answers and the AI builds your weekly plan. With dedicated profiles for kids.",
       form: {
         lifeStage: "Life Stage",
         goal: "Your Goal",
         gender: "Gender",
         age: "Age",
         weight: "Weight (kg)",
-        duration: "Duration (Weeks)",
+        duration: "Supply for",
         buttonLoading: "Analysing nutrient needs...",
         buttonDefault: "Generate Optimised Plan",
         options: {
@@ -408,7 +411,10 @@ export const APP_CONTENT = {
           summaryTitle: "Optimisation Summary",
           disclaimer: "Note: AI-generated suggestion based on average values. No medical advice.",
           addAllToCart: "Add all to cart",
-          cartMissingNote: "Not included in the cart link, please order via the individual buttons"
+          cartMissingNote: "Not included in the cart link, please order via the individual buttons",
+          showMore: "Show more",
+          showLess: "Show less",
+          years: "years"
       },
       blogArticles: {
           sectionTitle: "Related Articles from Our Blog",
