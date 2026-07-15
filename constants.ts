@@ -86,7 +86,7 @@ const NUT_DATA_BASE = [
         id: 'pecan',
         imageColor: 'bg-amber-900',
         gutHealthScore: 7.5,
-        shopUrl: 'https://www.2die4livefoods.com/de-de/products/aktivierte-bio-pekannuessen',
+        shopUrl: 'https://www.2die4livefoods.com/de-de/products/aktivierte-bio-pekannusse',
         nutrientsPer100g: {
             energy: 710, protein: 9.8, carbs: 13.5, sugar: 4.3, fat: 71.9, saturatedFat: 4.5,
             magnesium: 140, calcium: 55, iron: 2.4, zinc: 5.3, potassium: 500, vitaminE: 1.4, b1: 0.86, b6: 0.2, selenium: 3, omega3: 1.0,
@@ -132,6 +132,21 @@ export const getNutData = (lang: Language): NutProfile[] => {
         ...nut,
         ...NUT_TEXT[lang][nut.id as keyof typeof NUT_TEXT.de]
     }));
+};
+
+// Shopify-Varianten-IDs pro Nuss (100g/250g) für Cart-Permalinks.
+// Quelle: https://www.2die4livefoods.com/products/<handle>.js (Stand 2026-07-15).
+// Achtung: Werden Produkte im Shop neu angelegt, ändern sich die IDs;
+// dann liefert der Warenkorb-Link einen Fehler und die Map muss neu befüllt werden.
+export const SHOP_VARIANTS: Record<string, { variant100g?: string; variant250g?: string }> = {
+    cashew:    { variant100g: '44739868590344', variant250g: '44739868623112' },
+    almond:    { variant100g: '41476276191452', variant250g: '41476276224220' },
+    hazelnut:  { variant100g: '41476274946268', variant250g: '41476274979036' },
+    walnut:    { variant100g: '41476279959772', variant250g: '41476279992540' },
+    pistachio: { variant100g: '41476279501020', variant250g: '41476279533788' },
+    brazil:    { variant100g: '41476276420828', variant250g: '41476276453596' },
+    pecan:     { variant100g: '41476276551900', variant250g: '41476276584668' },
+    pumpkin:   { variant100g: '41475804463324', variant250g: '41475804496092' },
 };
 
 export const NUT_DATA = getNutData('de');
@@ -256,7 +271,9 @@ export const APP_CONTENT = {
           weekSupply: "Wochen-Bedarf",
           packRec: "Empfehlung",
           summaryTitle: "Optimierungs-Zusammenfassung",
-          disclaimer: "Hinweis: KI-generierter Vorschlag basierend auf Durchschnittswerten. Keine medizinische Beratung."
+          disclaimer: "Hinweis: KI-generierter Vorschlag basierend auf Durchschnittswerten. Keine medizinische Beratung.",
+          addAllToCart: "Alles in den Warenkorb",
+          cartMissingNote: "Nicht im Warenkorb-Link enthalten, bitte über die Einzel-Buttons bestellen"
       },
       blogArticles: {
           sectionTitle: "Passende Artikel aus unserem Blog",
@@ -389,7 +406,9 @@ export const APP_CONTENT = {
           weekSupply: "-Week-Supply",
           packRec: "Recommendation",
           summaryTitle: "Optimisation Summary",
-          disclaimer: "Note: AI-generated suggestion based on average values. No medical advice."
+          disclaimer: "Note: AI-generated suggestion based on average values. No medical advice.",
+          addAllToCart: "Add all to cart",
+          cartMissingNote: "Not included in the cart link, please order via the individual buttons"
       },
       blogArticles: {
           sectionTitle: "Related Articles from Our Blog",

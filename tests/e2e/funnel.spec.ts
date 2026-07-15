@@ -105,3 +105,23 @@ test.describe('Email capture', () => {
     await expect(page.getByPlaceholder('deine@email.com')).toBeEditable();
   });
 });
+
+test.describe('One-click cart', () => {
+  test('cart button links to a Shopify cart permalink with UTM', async ({ page }) => {
+    await page.route('**/.netlify/functions/plans*', route => {
+      if (route.request().url().includes('id=123')) {
+        return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(PLAN_FIXTURE) });
+      }
+      return route.fulfill({ status: 200, contentType: 'application/json', body: 'null' });
+    });
+
+    await page.goto('/de/?plan=123');
+    await expect(page.getByRole('heading', { name: 'Test Energie Plan' })).toBeVisible({ timeout: 10000 });
+
+    const cartButton = page.getByRole('link', { name: /alles in den warenkorb/i });
+    await expect(cartButton).toBeVisible();
+    const href = await cartButton.getAttribute('href');
+    expect(href).toMatch(/^https:\/\/www\.2die4livefoods\.com\/cart\/\d+:\d+(,\d+:\d+)*\?/);
+    expect(href).toContain('utm_campaign=planner-cart');
+  });
+});

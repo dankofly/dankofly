@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { UserProfile, WeeklyPlan, DayPlan, Language, Nutrients, BlogArticle, StoredPlan, PlanContext } from '../types';
-import { getNutData, APP_CONTENT } from '../constants';
+import { getNutData, APP_CONTENT, SHOP_VARIANTS } from '../constants';
 import { generateWeeklyPlan } from '../services/geminiService';
 import { dbService, getProfileHash } from '../services/dbService';
 import { validateUserProfile } from '../services/validationService';
 import { blogService } from '../services/blogService';
-import { withUtm } from '../services/shopLink';
+import { withUtm, getCartItems, buildCartPermalink } from '../services/shopLink';
 import NutrientChart from './NutrientChart';
 import EmailCapture from './EmailCapture';
 import { Brain, Loader2, CalendarCheck, AlertTriangle, Leaf, CheckCircle2, Pill, Zap, Users, User, ShoppingCart, ShoppingBag, Package, Activity, CalendarDays, ArrowRight, Target, ShieldCheck, Share2, Printer, Mail, MessageCircle, Gift, Truck, Sparkles, BookOpen } from 'lucide-react';
@@ -18,6 +18,7 @@ interface PlannerProps {
 
 interface ShoppingListItem {
     name: string;
+    nutId?: string;
     amount: number;
     packRecommendation: string;
     url: string;
@@ -223,7 +224,7 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
       const packRecommendation = amount < 80 ? '1x 100g' : amount <= 250 ? '1x 250g' : `${Math.ceil(amount / 250)}x 250g`;
       const nutProfile = nutData.find(n => name.toLowerCase() === n.name.toLowerCase() || n.name.toLowerCase().includes(name.toLowerCase()));
       const rawUrl = nutProfile ? nutProfile.shopUrl : `https://www.2die4livefoods.com/search?q=${encodeURIComponent(name)}`;
-      return { name, amount, packRecommendation, url: withUtm(rawUrl, 'planner-shopping-list') };
+      return { name, nutId: nutProfile?.id, amount, packRecommendation, url: withUtm(rawUrl, 'planner-shopping-list') };
     }).sort((a, b) => b.amount - a.amount);
   }, [language, profile.duration]);
 
@@ -231,6 +232,9 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
     if (!plan?.schedule) return [];
     return calculateShoppingList(plan.schedule);
   }, [plan?.schedule, calculateShoppingList]);
+
+  const cart = useMemo(() => getCartItems(shoppingList, SHOP_VARIANTS), [shoppingList]);
+  const cartUrl = useMemo(() => buildCartPermalink(cart.items), [cart.items]);
 
   // Format plan as shareable text
   const formatPlanAsText = useCallback((): string => {
@@ -612,10 +616,28 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
 
                 <div className="grid lg:grid-cols-12 gap-6 sm:gap-8">
                     <div className="lg:col-span-7 bg-white rounded-3xl shadow-xl border border-stone-200 overflow-hidden flex flex-col">
-                        <div className="bg-brand-light p-6 flex items-center justify-between shrink-0">
+                        <div className="bg-brand-light p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
                             <div className="flex items-center gap-3 text-white font-bold text-xl"><ShoppingBag className="text-brand-accent" size={20} /> <span>{txt.results.shoppingList}</span></div>
-                            <span className="hidden xs:inline-block text-[10px] bg-brand-accent text-white px-3 py-1.5 rounded-lg font-black uppercase tracking-wide">{profile.duration} {txt.results.weekSupply}</span>
+                            <div className="flex items-center gap-3">
+                                <span className="hidden xs:inline-block text-[10px] bg-brand-accent text-white px-3 py-1.5 rounded-lg font-black uppercase tracking-wide">{profile.duration} {txt.results.weekSupply}</span>
+                                {cartUrl && (
+                                    <a
+                                        href={cartUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="whimsy-cta flex items-center gap-2 bg-white text-brand-light hover:bg-brand-accent hover:text-white px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wide shadow-md transition-colors print:hidden"
+                                    >
+                                        <ShoppingCart size={14} />
+                                        {txt.results.addAllToCart}
+                                    </a>
+                                )}
+                            </div>
                         </div>
+                        {cart.missing.length > 0 && cartUrl && (
+                            <p className="px-6 py-2 bg-stone-100 text-[11px] text-stone-500 font-medium border-b border-stone-200 print:hidden">
+                                {txt.results.cartMissingNote}: {cart.missing.join(', ')}
+                            </p>
+                        )}
                         <div className="whimsy-stagger p-4 sm:p-8 grid sm:grid-cols-2 gap-4 sm:gap-6 bg-stone-50/30 flex-1">
                             {shoppingList.map((item, idx) => (
                                 <div key={idx} className="whimsy-card flex flex-col p-4 rounded-2xl bg-white border border-stone-200 hover:border-brand-accent/50 hover:shadow-lg relative overflow-hidden">
