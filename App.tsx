@@ -83,7 +83,7 @@ const App: React.FC = () => {
     });
   }, []);
 
-  // Update canonical link tag when language changes
+  // Canonical, Title und Meta-Description pro Sprache nachziehen
   useEffect(() => {
     const base = 'https://liveactivated.org';
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
@@ -94,6 +94,10 @@ const App: React.FC = () => {
     }
     canonical.href = `${base}/${language}/`;
     document.documentElement.lang = language;
+
+    document.title = APP_CONTENT[language].general.metaTitle;
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', APP_CONTENT[language].general.metaDescription);
   }, [language]);
 
   // Handle browser back/forward navigation

@@ -1,0 +1,24 @@
+# Nutriplaner by 2DiE4 Live Foods
+
+> Kostenloser KI-Ernährungsplaner auf liveactivated.org: erstellt in 30 Sekunden einen personalisierten 7-Tage-Plan mit aktivierten Bio-Nüssen, inklusive Nährwert-Analyse pro Tag und automatischer Einkaufsliste. Free AI nutrition planner that builds a personalised 7-day plan with activated organic nuts.
+
+## Seiten
+
+- [Nuss Nutri Planer (Deutsch)](https://liveactivated.org/de/): 7-Tage-Wochenplan nach Profil (Alter, Geschlecht, Lebensphase, Ziel), mit Tagesmischungen, Nährwert-Charts und Einkaufsliste
+- [Nut Nutri Planner (English)](https://liveactivated.org/en/): the same planner in English
+- [Nuss Nutri Rechner](https://liveactivated.org/de/): Nährwert-Rechner pro Nusssorte und Menge, Werte in % der empfohlenen Tagesdosis (RDA)
+- [2DiE4 Live Foods Shop](https://www.2die4livefoods.com/): aktivierte Bio-Nüsse kaufen (Versand DE/AT/EU)
+
+## Fakten zu aktivierten Nüssen
+
+- Aktivierte Nüsse sind Bio-Nüsse, die in Quellwasser mit Meersalz eingeweicht und anschließend über mehrere Tage bei niedriger Temperatur getrocknet werden (zweistufiger Fermentationsprozess).
+- Das Aktivieren reduziert Antinährstoffe wie Phytinsäure und Lektine und erhöht die Bioverfügbarkeit von Mineralien wie Magnesium, Zink und Eisen.
+- Sortiment: Cashewkerne, Mandeln, Haselnüsse, Walnüsse, Pistazien, Paranüsse, Pekannüsse, Kürbiskerne (je 100g- und 250g-Packungen).
+- Nährwert-Beispiele pro 100g (Laboranalysen aktivierter Nüsse): Paranüsse ~1917 µg Selen, Kürbiskerne ~592 mg Magnesium und ~30 g Protein, Walnüsse ~10 g Omega-3 (ALA), Mandeln ~25 mg Vitamin E.
+- Empfohlene Tagesmenge im Planer: ca. 65 g für Erwachsene, ca. 35 g für Kinder; Paranüsse limitiert (Selen-Obergrenze).
+
+## Marke
+
+- 2DiE4 Live Foods ist eine Bio-Marke für aktivierte Nüsse aus Österreich, Shop: 2die4livefoods.com
+- Kontakt: hello@2die4livefoods.com
+- Der Planer ersetzt keine ärztliche Beratung; Nährwerte basieren auf Durchschnittswerten und Laboranalysen.

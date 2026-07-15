@@ -182,7 +182,9 @@ export const APP_CONTENT = {
       sourcesHeader: "Wissenschaftliche Quellen",
       sourcesSubHeader: "Quellenverweise für alle Nährwertdaten und Berechnungen im Planer und Rechner",
       footerDisclaimer: "© 2026 2DiE4 Live Foods. Nährwerte können natürlichen Schwankungen unterliegen.",
-      footerNote: "Diese App dient zur Information und ersetzt keine ärztliche Beratung - Alle Angaben ohne Gewähr."
+      footerNote: "Diese App dient zur Information und ersetzt keine ärztliche Beratung - Alle Angaben ohne Gewähr.",
+      metaTitle: "Nutriplaner by 2DiE4 Live Foods - Dein Nuss-Wochenplan",
+      metaDescription: "Dein 7-Tage-Plan mit aktivierten Bio-Nüssen: personalisierte Tagesmischungen, Nährwert-Analyse und Einkaufsliste. Kostenlos, fertig in 30 Sekunden."
     },
     nutLibrary: {
       selectionTitle: "Auswahl",
@@ -320,7 +322,9 @@ export const APP_CONTENT = {
       sourcesHeader: "Scientific Sources",
       sourcesSubHeader: "Source references for all nutritional data and calculations in the planner and calculator",
       footerDisclaimer: "© 2026 2DiE4 Live Foods. Nutritional values may vary naturally.",
-      footerNote: "This app is for information purposes only and does not replace medical advice."
+      footerNote: "This app is for information purposes only and does not replace medical advice.",
+      metaTitle: "Nutriplaner by 2DiE4 Live Foods - Your Nut Week Plan",
+      metaDescription: "Your 7-day plan with activated organic nuts: personalised daily mixes, nutrient analysis and shopping list. Free, ready in 30 seconds."
     },
     nutLibrary: {
       selectionTitle: "Selection",
