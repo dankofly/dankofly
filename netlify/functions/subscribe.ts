@@ -91,7 +91,9 @@ export const handler: Handler = async (event) => {
   const planUrl = planId ? `${siteUrl}/${language}/?plan=${planId}` : null;
 
   try {
-    // 1. Profil mit Consent in die Liste (Double-Opt-in steuert Klaviyo)
+    // 1. Profil mit Consent in die Liste (Double-Opt-in steuert Klaviyo).
+    // Achtung: der Subscription-Job erlaubt KEIN properties-Feld am Profil,
+    // Profil-Properties laufen deshalb über den Event-Call darunter.
     const subscribeRes = await klaviyoFetch('/api/profile-subscription-bulk-create-jobs/', apiKey, {
       data: {
         type: 'profile-subscription-bulk-create-job',
@@ -102,11 +104,6 @@ export const handler: Handler = async (event) => {
               attributes: {
                 email,
                 subscriptions: { email: { marketing: { consent: 'SUBSCRIBED' } } },
-                properties: {
-                  nutriplan_language: language,
-                  nutriplan_goal: goal,
-                  ...(planUrl ? { nutriplan_plan_url: planUrl } : {}),
-                },
               },
             }],
           },
@@ -125,7 +122,19 @@ export const handler: Handler = async (event) => {
         type: 'event',
         attributes: {
           metric: { data: { type: 'metric', attributes: { name: METRIC_NAME } } },
-          profile: { data: { type: 'profile', attributes: { email } } },
+          profile: {
+            data: {
+              type: 'profile',
+              attributes: {
+                email,
+                properties: {
+                  nutriplan_language: language,
+                  ...(goal ? { nutriplan_goal: goal } : {}),
+                  ...(planUrl ? { nutriplan_plan_url: planUrl } : {}),
+                },
+              },
+            },
+          },
           properties: {
             ...(planUrl ? { planUrl } : {}),
             ...(planId ? { planId } : {}),
