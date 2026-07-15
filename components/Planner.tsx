@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { UserProfile, WeeklyPlan, DayPlan, Language, Nutrients, BlogArticle } from '../types';
+import { UserProfile, WeeklyPlan, DayPlan, Language, Nutrients, BlogArticle, StoredPlan, PlanContext } from '../types';
 import { getNutData, APP_CONTENT } from '../constants';
 import { generateWeeklyPlan } from '../services/geminiService';
 import { dbService, getProfileHash } from '../services/dbService';
@@ -11,6 +11,8 @@ import { Brain, Loader2, CalendarCheck, AlertTriangle, Leaf, CheckCircle2, Pill,
 
 interface PlannerProps {
     language: Language;
+    sharedPlan?: StoredPlan | null;
+    sharedPlanNotFound?: boolean;
 }
 
 interface ShoppingListItem {
@@ -20,7 +22,7 @@ interface ShoppingListItem {
     url: string;
 }
 
-const Planner: React.FC<PlannerProps> = ({ language }) => {
+const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFound }) => {
   const [profile, setProfile] = useState<UserProfile>({
     age: 30,
     gender: 'female',
@@ -41,8 +43,32 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
   const [progressText, setProgressText] = useState('');
   const [progressPercent, setProgressPercent] = useState(0);
   const [plan, setPlan] = useState<WeeklyPlan | null>(null);
+  const [planId, setPlanId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [blogArticles, setBlogArticles] = useState<BlogArticle[]>([]);
+
+  // Geteilten Plan (Permalink ?plan=<id>) übernehmen
+  useEffect(() => {
+    if (!sharedPlan) return;
+    setPlan(sharedPlan.plan);
+    setPlanId(sharedPlan.id);
+    const ctx = sharedPlan.context;
+    if (ctx) {
+      setProfile(p => ({
+        ...p,
+        duration: ctx.duration ?? p.duration,
+        lifeStage: ctx.lifeStage ?? p.lifeStage,
+        goal: ctx.goal ?? p.goal,
+      }));
+    }
+  }, [sharedPlan]);
+
+  // Browser-URL immer auf den aktuellen Plan zeigen lassen, damit
+  // Copy-Paste der Adresszeile als Share-Weg funktioniert.
+  useEffect(() => {
+    if (planId === null) return;
+    window.history.replaceState(window.history.state, '', `/${language}/?plan=${planId}`);
+  }, [planId, language]);
 
   // Load blog articles when a plan is generated
   useEffect(() => {
@@ -97,35 +123,45 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
     setLoading(true);
     setError(null);
     setPlan(null);
-    
+    setPlanId(null);
+
     // Validate input
     const validationErrors = validateUserProfile(profile);
     if (validationErrors.length > 0) {
       const errorMsg = validationErrors.map(e => e.message).join('; ');
-      setError(language === 'de' 
-        ? `Eingabefehler: ${errorMsg}` 
+      setError(language === 'de'
+        ? `Eingabefehler: ${errorMsg}`
         : `Validation error: ${errorMsg}`);
       setLoading(false);
       return;
     }
-    
+
     const hash = getProfileHash(profile);
+    const context: PlanContext = {
+      duration: profile.duration,
+      lifeStage: profile.lifeStage,
+      language: profile.language,
+      goal: profile.goal,
+    };
 
     try {
       // 1. Check cache
-      const cachedPlan = await dbService.getLatestPlan(hash);
-      if (cachedPlan && Array.isArray(cachedPlan.schedule) && cachedPlan.schedule.length > 0) {
-        setPlan(cachedPlan);
+      const cached = await dbService.getLatestPlan(hash);
+      if (cached && Array.isArray(cached.plan.schedule) && cached.plan.schedule.length > 0) {
+        setPlan(cached.plan);
+        setPlanId(cached.id);
         setLoading(false);
         return;
       }
 
       // 2. Generate new
       const result = await generateWeeklyPlan(profile);
-      
+
       if (result && Array.isArray(result.schedule) && result.schedule.length === 7) {
           setPlan(result);
-          dbService.savePlan(result, hash).catch(err => console.error('Cache save failed', err));
+          dbService.savePlan(result, hash, context)
+            .then(id => { if (id !== null) setPlanId(id); })
+            .catch(err => console.error('Cache save failed', err));
       } else {
           throw new Error("Invalid plan structure generated. Expected 7 days.");
       }
@@ -214,20 +250,30 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
     return header + days + shoppingText + footer;
   }, [plan, shoppingList, language]);
 
+  // Permalink zum aktuellen Plan; null solange der Plan noch keine ID hat
+  // (Speichern läuft asynchron). Share-Handler fallen dann auf Text zurück.
+  const planUrl = planId !== null
+    ? `${window.location.origin}/${language}/?plan=${planId}`
+    : null;
+
   // Share handlers
   const handlePrint = () => {
     window.print();
   };
 
   const handleWhatsAppShare = () => {
-    const text = formatPlanAsText();
+    const text = planUrl
+      ? `${txt.share.teaser}\n\n${plan?.title || ''}\n${txt.share.linkLabel}: ${planUrl}`
+      : formatPlanAsText();
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
   };
 
   const handleEmailShare = () => {
     const subject = plan ? `${plan.title} - NutriPlan AI` : 'My NutriPlan';
-    const body = formatPlanAsText();
+    const body = planUrl
+      ? `${txt.share.linkLabel}: ${planUrl}\n\n${formatPlanAsText()}`
+      : formatPlanAsText();
     const url = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = url;
   };
@@ -237,7 +283,8 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
       try {
         await navigator.share({
           title: plan?.title || 'NutriPlan',
-          text: formatPlanAsText(),
+          text: planUrl ? txt.share.teaser : formatPlanAsText(),
+          ...(planUrl ? { url: planUrl } : {}),
         });
       } catch (err) {
         // User cancelled or error - silently fail
@@ -247,6 +294,14 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
 
   return (
     <div className="max-w-5xl mx-auto px-2 sm:px-4">
+      {/* Shared plan not found notice */}
+      {sharedPlanNotFound && !plan && (
+          <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-2xl flex items-start gap-3 mb-6 shadow-sm print:hidden">
+              <AlertTriangle className="shrink-0 mt-0.5" size={18} />
+              <span className="text-sm font-medium">{txt.sharedPlan.notFound}</span>
+          </div>
+      )}
+
       {/* FORM SECTION */}
       <div className="bg-brand-card rounded-2xl p-5 sm:p-8 border border-brand-border shadow-xl mb-8 sm:mb-12 print:hidden w-full mx-auto">
         <div className="mb-6 sm:mb-8 border-b border-brand-border pb-6">

@@ -8,7 +8,8 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { Brain, Menu, X, BookOpen, Globe, ChevronRight, FileText, HelpCircle } from 'lucide-react';
 import { APP_CONTENT } from './constants';
 import { withUtm } from './services/shopLink';
-import { Language } from './types';
+import { dbService } from './services/dbService';
+import { Language, StoredPlan } from './types';
 
 enum Tab {
   PLANNER = 'planner',
@@ -40,8 +41,38 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>(Tab.PLANNER);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [language, setLanguage] = useState<Language>(getLanguageFromPath);
+  const [sharedPlan, setSharedPlan] = useState<StoredPlan | null>(null);
+  const [sharedPlanNotFound, setSharedPlanNotFound] = useState(false);
 
   const txt = APP_CONTENT[language].general;
+
+  // Geteilten Plan aus ?plan=<id> laden (Permalink)
+  useEffect(() => {
+    const planParam = new URLSearchParams(window.location.search).get('plan');
+    if (!planParam) return;
+
+    const planId = parseInt(planParam, 10);
+    if (!Number.isInteger(planId) || planId <= 0) {
+      setSharedPlanNotFound(true);
+      return;
+    }
+
+    dbService.getPlanById(planId).then(stored => {
+      if (!stored) {
+        setSharedPlanNotFound(true);
+        return;
+      }
+      // UI-Sprache an die Plan-Sprache angleichen: das Nussnamen-Matching
+      // der Einkaufsliste ist sprachgebunden.
+      const ctxLang = stored.context?.language;
+      if ((ctxLang === 'de' || ctxLang === 'en') && ctxLang !== getLanguageFromPath()) {
+        window.history.replaceState({ language: ctxLang }, '', `/${ctxLang}/?plan=${planId}`);
+        setLanguage(ctxLang);
+      }
+      setSharedPlan(stored);
+      setActiveTab(Tab.PLANNER);
+    });
+  }, []);
 
   const toggleLanguage = useCallback(() => {
     setLanguage(prev => {
@@ -308,7 +339,7 @@ const App: React.FC = () => {
         <ErrorBoundary language={language}>
           <Suspense fallback={<div className="flex justify-center items-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-4 border-brand-accent border-t-transparent"></div></div>}>
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {activeTab === Tab.PLANNER && <Planner language={language} />}
+                {activeTab === Tab.PLANNER && <Planner language={language} sharedPlan={sharedPlan} sharedPlanNotFound={sharedPlanNotFound} />}
                 {activeTab === Tab.LIBRARY && <NutLibrary language={language} />}
                 {activeTab === Tab.FAQ && <FAQ language={language} />}
                 {activeTab === Tab.SOURCES && <Sources language={language} />}

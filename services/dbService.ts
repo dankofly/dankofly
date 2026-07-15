@@ -1,5 +1,5 @@
 
-import { WeeklyPlan, UserProfile } from '../types';
+import { WeeklyPlan, UserProfile, PlanContext, StoredPlan } from '../types';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 500;
@@ -55,38 +55,69 @@ export const getProfileHash = (user: UserProfile): string => {
   return Math.abs(hash).toString();
 };
 
+/**
+ * Wandelt die Server-Antwort {id, plan, context} in ein StoredPlan um.
+ * Antworten ohne gültigen Plan (null, Legacy-Formate) ergeben null.
+ */
+const toStoredPlan = (data: any): StoredPlan | null => {
+  if (!data || typeof data !== 'object' || !data.plan) return null;
+  return {
+    id: typeof data.id === 'number' ? data.id : null,
+    plan: data.plan as WeeklyPlan,
+    context: (data.context as PlanContext) ?? null,
+  };
+};
+
 export const dbService = {
   /**
    * Speichert einen Plan in der Neon-Datenbank mit Retry-Logik.
+   * Gibt die neue Row-ID zurück (für Permalinks), null bei Fehler.
    */
-  async savePlan(plan: WeeklyPlan, hash: string): Promise<void> {
-    await retryFetch(
+  async savePlan(plan: WeeklyPlan, hash: string, context: PlanContext): Promise<number | null> {
+    const result = await retryFetch(
       () => fetch('/.netlify/functions/plans', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan, hash }),
+        body: JSON.stringify({ plan, hash, context }),
       }).then(r => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
     ).catch(e => {
       console.error('Failed to save plan after retries:', e);
+      return null;
     });
+
+    return typeof result?.id === 'number' ? result.id : null;
   },
 
   /**
-   * Ruft den neuesten Plan mit Retry-Logik ab.
+   * Ruft den neuesten Plan für einen Profil-Hash ab.
    */
-  async getLatestPlan(hash?: string): Promise<WeeklyPlan | null> {
+  async getLatestPlan(hash?: string): Promise<StoredPlan | null> {
     const url = hash ? `/.netlify/functions/plans?hash=${hash}` : '/.netlify/functions/plans';
-    
+
     const result = await retryFetch(
       () => fetch(url).then(r => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
     );
-    
-    return result as WeeklyPlan | null;
+
+    return toStoredPlan(result);
+  },
+
+  /**
+   * Ruft einen geteilten Plan über seine ID ab (Permalink). Kein Retry bei 404.
+   */
+  async getPlanById(id: number): Promise<StoredPlan | null> {
+    try {
+      const r = await fetch(`/.netlify/functions/plans?id=${id}`);
+      if (!r.ok) return null;
+      return toStoredPlan(await r.json());
+    } catch (e) {
+      console.error('Failed to load shared plan:', e);
+      return null;
+    }
   }
 };

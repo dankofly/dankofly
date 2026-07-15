@@ -56,6 +56,21 @@ export interface WeeklyPlan {
   summary: string;
 }
 
+// Minimaler Kontext, den die Ergebnis-Ansicht zum Rendern eines geteilten Plans braucht.
+// Legacy-DB-Rows haben context = null; Clients nutzen dann Formular-Defaults.
+export interface PlanContext {
+  duration: number;
+  lifeStage: 'adult' | 'child';
+  language: Language;
+  goal?: UserProfile['goal'];
+}
+
+export interface StoredPlan {
+  id: number | null;
+  plan: WeeklyPlan;
+  context: PlanContext | null;
+}
+
 export interface BlogArticle {
   title: string;
   url: string;

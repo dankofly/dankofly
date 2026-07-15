@@ -261,6 +261,13 @@ export const APP_CONTENT = {
       blogArticles: {
           sectionTitle: "Passende Artikel aus unserem Blog",
           readMore: "Weiterlesen",
+      },
+      share: {
+          teaser: "Mein persönlicher Nuss-Wochenplan von NutriPlan AI 🥜",
+          linkLabel: "Plan ansehen",
+      },
+      sharedPlan: {
+          notFound: "Dieser geteilte Plan wurde nicht gefunden. Erstell dir hier in 30 Sekunden deinen eigenen.",
       }
     }
   },
@@ -373,6 +380,13 @@ export const APP_CONTENT = {
       blogArticles: {
           sectionTitle: "Related Articles from Our Blog",
           readMore: "Read more",
+      },
+      share: {
+          teaser: "My personal nut week plan from NutriPlan AI 🥜",
+          linkLabel: "View plan",
+      },
+      sharedPlan: {
+          notFound: "This shared plan could not be found. Create your own here in 30 seconds.",
       }
     }
   }
