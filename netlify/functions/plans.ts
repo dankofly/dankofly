@@ -57,7 +57,7 @@ export const handler: Handler = async (event) => {
 
       const [inserted] = await db`
         INSERT INTO plans (profile_hash, plan_data)
-        VALUES (${hash || null}, ${JSON.stringify(plan)})
+        VALUES (${hash || null}, ${db.json(plan)})
         RETURNING *
       `;
 
@@ -88,9 +88,20 @@ export const handler: Handler = async (event) => {
         `;
       }
 
+      // Older rows were stored double-encoded (JSONB containing a JSON string);
+      // unwrap so clients always receive the plan object.
+      let planData = rows[0]?.plan_data ?? null;
+      if (typeof planData === 'string') {
+        try {
+          planData = JSON.parse(planData);
+        } catch {
+          planData = null;
+        }
+      }
+
       return {
         statusCode: 200,
-        body: JSON.stringify(rows[0]?.plan_data || null),
+        body: JSON.stringify(planData),
       };
     }
 
