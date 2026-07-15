@@ -7,6 +7,7 @@ const Sources = lazy(() => import('./components/Sources'));
 import ErrorBoundary from './components/ErrorBoundary';
 import { Brain, Menu, X, BookOpen, Globe, ChevronRight, FileText, HelpCircle } from 'lucide-react';
 import { APP_CONTENT } from './constants';
+import { withUtm } from './services/shopLink';
 import { Language } from './types';
 
 enum Tab {
@@ -53,7 +54,7 @@ const App: React.FC = () => {
 
   // Update canonical link tag when language changes
   useEffect(() => {
-    const base = 'https://2die4.hypeakz.io';
+    const base = 'https://liveactivated.org';
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     if (!canonical) {
       canonical = document.createElement('link');
@@ -86,9 +87,9 @@ const App: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-2">
             {/* Logo Area */}
-            <a 
-                href="https://www.2die4livefoods.com/" 
-                target="_blank" 
+            <a
+                href={withUtm("https://www.2die4livefoods.com/", 'header-logo')}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 hover:opacity-80 transition-opacity -ml-2 shrink-0"
             >
@@ -324,7 +325,7 @@ const App: React.FC = () => {
             {/* Brand Section */}
             <div className="text-center md:text-left">
               <a
-                href="https://www.2die4livefoods.com/"
+                href={withUtm("https://www.2die4livefoods.com/", 'footer')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block hover:opacity-80 transition-opacity"
@@ -349,7 +350,7 @@ const App: React.FC = () => {
               </h4>
               <nav className="flex flex-col gap-2">
                 <a
-                  href="https://www.2die4livefoods.com/pages/2die4-live-foods-nuss-abo"
+                  href={withUtm("https://www.2die4livefoods.com/pages/2die4-live-foods-nuss-abo", 'footer')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-1.5 text-sm font-semibold text-brand-accent hover:text-brand-light transition-colors"
@@ -357,7 +358,7 @@ const App: React.FC = () => {
                   {language === 'de' ? 'Nuss-Abo' : 'Nut Subscription'}
                 </a>
                 <a
-                  href="https://www.2die4livefoods.com/de-de/collections/alle-produkte"
+                  href={withUtm("https://www.2die4livefoods.com/de-de/collections/alle-produkte", 'footer')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-brand-muted hover:text-brand-accent transition-colors"
@@ -365,7 +366,7 @@ const App: React.FC = () => {
                   {language === 'de' ? 'Zum Shop' : 'Visit Shop'}
                 </a>
                 <a
-                  href="https://www.2die4livefoods.com/pages/faq"
+                  href={withUtm("https://www.2die4livefoods.com/pages/faq", 'footer')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-brand-muted hover:text-brand-accent transition-colors"
@@ -373,7 +374,7 @@ const App: React.FC = () => {
                   {language === 'de' ? 'Häufige Fragen' : 'FAQ'}
                 </a>
                 <a
-                  href="https://www.2die4livefoods.com/pages/impressum"
+                  href={withUtm("https://www.2die4livefoods.com/pages/impressum", 'footer')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-brand-muted hover:text-brand-accent transition-colors"
@@ -396,7 +397,7 @@ const App: React.FC = () => {
                   hello@2die4livefoods.com
                 </a>
                 <a
-                  href="https://www.2die4livefoods.com/"
+                  href={withUtm("https://www.2die4livefoods.com/", 'footer')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-brand-muted hover:text-brand-accent transition-colors"

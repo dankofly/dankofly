@@ -5,6 +5,7 @@ import { generateWeeklyPlan } from '../services/geminiService';
 import { dbService, getProfileHash } from '../services/dbService';
 import { validateUserProfile } from '../services/validationService';
 import { blogService } from '../services/blogService';
+import { withUtm } from '../services/shopLink';
 import NutrientChart from './NutrientChart';
 import { Brain, Loader2, CalendarCheck, AlertTriangle, Leaf, CheckCircle2, Pill, Zap, Users, User, ShoppingCart, ShoppingBag, Package, Activity, CalendarDays, ArrowRight, Target, ShieldCheck, Share2, Printer, Mail, MessageCircle, Gift, Truck, Sparkles, BookOpen } from 'lucide-react';
 
@@ -184,8 +185,8 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
     return Object.entries(totals).map(([name, amount]) => {
       const packRecommendation = amount < 80 ? '1x 100g' : amount <= 250 ? '1x 250g' : `${Math.ceil(amount / 250)}x 250g`;
       const nutProfile = nutData.find(n => name.toLowerCase() === n.name.toLowerCase() || n.name.toLowerCase().includes(name.toLowerCase()));
-      const url = nutProfile ? nutProfile.shopUrl : `https://www.2die4livefoods.com/search?q=${encodeURIComponent(name)}`;
-      return { name, amount, packRecommendation, url };
+      const rawUrl = nutProfile ? nutProfile.shopUrl : `https://www.2die4livefoods.com/search?q=${encodeURIComponent(name)}`;
+      return { name, amount, packRecommendation, url: withUtm(rawUrl, 'planner-shopping-list') };
     }).sort((a, b) => b.amount - a.amount);
   }, [language, profile.duration]);
 
@@ -538,7 +539,7 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
                                 <div className="text-sm text-stone-400 line-through">64,30 €</div>
                             </div>
                             <a
-                                href="https://www.2die4livefoods.com/de-de/products/2die4-all-in-one-bundle"
+                                href={withUtm("https://www.2die4livefoods.com/de-de/products/2die4-all-in-one-bundle", 'planner-bundle')}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="whimsy-cta w-full bg-brand-accent hover:bg-brand-accent/90 text-white font-black py-4 px-8 rounded-xl text-center shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base"
@@ -576,7 +577,7 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
                             <div className="relative z-10">
                                 <div className="flex items-center justify-between mb-6"><h4 className="font-black text-4xl text-white">ABO</h4><div className="bg-brand-accent text-white px-2 py-1 rounded-lg transform rotate-[-3deg]"><span className="font-black text-lg">-15%</span></div></div>
                                 <p className="text-xs sm:text-sm text-stone-300 mb-8 font-medium leading-relaxed">{txt.aboBox.aboDesc}</p>
-                                <a href="https://www.2die4livefoods.com/de-de/products/2die4-all-in-one-bundle" target="_blank" rel="noopener noreferrer" className="whimsy-cta w-full bg-white text-brand-light hover:bg-brand-accent hover:text-white font-black py-4 px-6 rounded-xl text-center shadow-lg flex items-center justify-center gap-2 text-sm"><span>{txt.aboBox.aboButtonText}</span> <ArrowRight size={16} /></a>
+                                <a href={withUtm("https://www.2die4livefoods.com/de-de/products/2die4-all-in-one-bundle", 'planner-abo')} target="_blank" rel="noopener noreferrer" className="whimsy-cta w-full bg-white text-brand-light hover:bg-brand-accent hover:text-white font-black py-4 px-6 rounded-xl text-center shadow-lg flex items-center justify-center gap-2 text-sm"><span>{txt.aboBox.aboButtonText}</span> <ArrowRight size={16} /></a>
                                 <div className="flex items-center justify-center gap-2 text-[9px] text-stone-500 font-medium mt-4"><ShieldCheck size={10} className="text-emerald-500" /> <span>{txt.aboBox.cancelAnytime}</span></div>
                             </div>
                         </div>
@@ -598,7 +599,7 @@ const Planner: React.FC<PlannerProps> = ({ language }) => {
                             {blogArticles.map((article, idx) => (
                                 <a
                                     key={idx}
-                                    href={article.url}
+                                    href={withUtm(article.url, 'blog-article')}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="whimsy-card group flex flex-col rounded-2xl border border-stone-200 overflow-hidden hover:border-brand-accent/50 hover:shadow-lg"

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { getNutData, RDA, APP_CONTENT, NUTRIENT_LABELS } from '../constants';
 import { Nutrients, Language, BlogArticle } from '../types';
 import { blogService } from '../services/blogService';
+import { withUtm } from '../services/shopLink';
 import NutrientChart from './NutrientChart';
 import { Info, Sparkles, Target, ShoppingBag, TrendingUp, CheckCircle2, ArrowRight, Calculator, Sprout, BookOpen } from 'lucide-react';
 
@@ -111,8 +112,8 @@ const NutLibrary: React.FC<NutLibraryProps> = ({ language }) => {
                         <h2 className="text-4xl md:text-5xl font-extrabold text-brand-light tracking-tight mb-2">{selectedNut.name}</h2>
                         <p className="text-xl text-brand-muted font-serif italic">{selectedNut.description}</p>
                     </div>
-                    <a 
-                        href={selectedNut.shopUrl}
+                    <a
+                        href={withUtm(selectedNut.shopUrl, 'nut-library')}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 bg-brand-light text-white px-5 py-2.5 rounded-lg font-bold hover:bg-brand-accent transition-all shadow-lg text-sm shrink-0"
@@ -310,7 +311,7 @@ const NutLibrary: React.FC<NutLibraryProps> = ({ language }) => {
                   {blogArticles.map((article, idx) => (
                       <a
                           key={idx}
-                          href={article.url}
+                          href={withUtm(article.url, 'blog-article')}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="whimsy-card group flex flex-col rounded-2xl border border-stone-200 overflow-hidden hover:border-brand-accent/50 hover:shadow-lg"
