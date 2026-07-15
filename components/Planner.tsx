@@ -7,6 +7,7 @@ import { validateUserProfile } from '../services/validationService';
 import { blogService } from '../services/blogService';
 import { withUtm } from '../services/shopLink';
 import NutrientChart from './NutrientChart';
+import EmailCapture from './EmailCapture';
 import { Brain, Loader2, CalendarCheck, AlertTriangle, Leaf, CheckCircle2, Pill, Zap, Users, User, ShoppingCart, ShoppingBag, Package, Activity, CalendarDays, ArrowRight, Target, ShieldCheck, Share2, Printer, Mail, MessageCircle, Gift, Truck, Sparkles, BookOpen } from 'lucide-react';
 
 interface PlannerProps {
@@ -540,6 +541,9 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
                         );
                     })}
                 </div>
+
+                {/* Email Capture: Plan-Link + Rabattcode */}
+                <EmailCapture language={language} planId={planId} goal={profile.goal} />
 
                 {/* ALL-IN-ONE Set Promo Box */}
                 <div className="bg-gradient-to-br from-stone-50 to-stone-100 rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-xl overflow-hidden relative">

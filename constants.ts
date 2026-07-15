@@ -268,6 +268,20 @@ export const APP_CONTENT = {
       },
       sharedPlan: {
           notFound: "Dieser geteilte Plan wurde nicht gefunden. Erstell dir hier in 30 Sekunden deinen eigenen.",
+      },
+      emailCapture: {
+          title: "Plan per E-Mail + Rabattcode sichern",
+          subtitle: "Wir schicken dir den Link zu deinem Plan und einen Rabattcode für deine erste Bestellung im 2DiE4-Shop.",
+          placeholder: "deine@email.com",
+          button: "Plan + Code senden",
+          buttonLoading: "Wird gesendet...",
+          preparingLink: "Dein Plan-Link wird noch vorbereitet, einen Moment...",
+          successTitle: "Fast geschafft!",
+          successBody: "Bitte bestätige kurz die E-Mail in deinem Postfach. Danach bekommst du deinen Plan-Link und den Rabattcode zugeschickt.",
+          errorInvalid: "Bitte gib eine gültige E-Mail-Adresse ein.",
+          errorGeneric: "Das hat gerade nicht geklappt. Bitte versuch es in einem Moment nochmal.",
+          consentHint: "Mit dem Absenden meldest du dich für den 2DiE4-Newsletter an (Bestätigung per Double-Opt-in, jederzeit abmeldbar). Deine E-Mail wird nur dafür verwendet und nicht in dieser App gespeichert. Details:",
+          privacyLinkText: "Datenschutzerklärung",
       }
     }
   },
@@ -387,6 +401,20 @@ export const APP_CONTENT = {
       },
       sharedPlan: {
           notFound: "This shared plan could not be found. Create your own here in 30 seconds.",
+      },
+      emailCapture: {
+          title: "Get your plan by email + discount code",
+          subtitle: "We'll send you the link to your plan plus a discount code for your first order in the 2DiE4 shop.",
+          placeholder: "your@email.com",
+          button: "Send plan + code",
+          buttonLoading: "Sending...",
+          preparingLink: "Your plan link is being prepared, one moment...",
+          successTitle: "Almost there!",
+          successBody: "Please confirm the email in your inbox. After that you'll receive your plan link and the discount code.",
+          errorInvalid: "Please enter a valid email address.",
+          errorGeneric: "That didn't work just now. Please try again in a moment.",
+          consentHint: "By submitting you sign up for the 2DiE4 newsletter (double opt-in confirmation, unsubscribe anytime). Your email is only used for this and never stored in this app. Details:",
+          privacyLinkText: "Privacy Policy",
       }
     }
   }

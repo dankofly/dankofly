@@ -70,3 +70,38 @@ test.describe('Shared plan permalinks', () => {
     await expect(page.getByRole('button', { name: /generieren|generate/i })).toBeVisible();
   });
 });
+
+test.describe('Email capture', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/.netlify/functions/plans*', route => {
+      if (route.request().url().includes('id=123')) {
+        return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(PLAN_FIXTURE) });
+      }
+      return route.fulfill({ status: 200, contentType: 'application/json', body: 'null' });
+    });
+    await page.goto('/de/?plan=123');
+    await expect(page.getByRole('heading', { name: 'Test Energie Plan' })).toBeVisible({ timeout: 10000 });
+  });
+
+  test('successful subscribe shows confirmation copy', async ({ page }) => {
+    await page.route('**/.netlify/functions/subscribe', route =>
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true }) })
+    );
+
+    await page.getByPlaceholder('deine@email.com').fill('test@example.com');
+    await page.getByRole('button', { name: /plan \+ code senden/i }).click();
+    await expect(page.getByText(/fast geschafft/i)).toBeVisible();
+    await expect(page.getByText(/bestätige/i)).toBeVisible();
+  });
+
+  test('server error keeps the form editable and shows message', async ({ page }) => {
+    await page.route('**/.netlify/functions/subscribe', route =>
+      route.fulfill({ status: 502, contentType: 'application/json', body: JSON.stringify({ error: 'Upstream error' }) })
+    );
+
+    await page.getByPlaceholder('deine@email.com').fill('test@example.com');
+    await page.getByRole('button', { name: /plan \+ code senden/i }).click();
+    await expect(page.getByText(/nicht geklappt/i)).toBeVisible();
+    await expect(page.getByPlaceholder('deine@email.com')).toBeEditable();
+  });
+});
