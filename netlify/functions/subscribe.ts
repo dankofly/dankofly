@@ -102,7 +102,11 @@ export const handler: Handler = async (event) => {
               attributes: {
                 email,
                 subscriptions: { email: { marketing: { consent: 'SUBSCRIBED' } } },
-                properties: { nutriplan_language: language, nutriplan_goal: goal },
+                properties: {
+                  nutriplan_language: language,
+                  nutriplan_goal: goal,
+                  ...(planUrl ? { nutriplan_plan_url: planUrl } : {}),
+                },
               },
             }],
           },
