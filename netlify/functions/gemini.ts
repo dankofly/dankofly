@@ -1,14 +1,100 @@
 import { Handler } from '@netlify/functions';
 
-const MODEL = 'gemini-2.0-flash';
-const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
+// Preferred path: OpenRouter (OpenAI-compatible API, routes to Gemini models).
+// Fallback path: direct Gemini REST API (works only if the Google project has the API enabled).
+const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const DEFAULT_MODEL = 'google/gemini-2.5-flash';
 
-/**
- * Backend proxy for Gemini API calls
- * Uses direct REST API instead of SDK to avoid bundling issues
- */
+const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
+
+interface GenerationConfig {
+  temperature?: number;
+  responseMimeType?: string;
+}
+
+// text === null means failure; status/details carry the error info
+interface LlmResult {
+  text: string | null;
+  status: number;
+  details?: unknown;
+}
+
+const callOpenRouter = async (
+  apiKey: string,
+  prompt: string,
+  config: GenerationConfig | undefined
+): Promise<LlmResult> => {
+  const response = await fetch(OPENROUTER_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+      'HTTP-Referer': 'https://liveactivated.org',
+      'X-Title': 'Nutriplaner',
+    },
+    body: JSON.stringify({
+      model: process.env.NUTRI_MODEL || DEFAULT_MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: config?.temperature ?? 0.1,
+      ...(config?.responseMimeType === 'application/json'
+        ? { response_format: { type: 'json_object' } }
+        : {}),
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error('OpenRouter API error response:', errorData);
+    return { text: null, status: response.status, details: errorData };
+  }
+
+  const data = await response.json();
+  const text = data.choices?.[0]?.message?.content;
+  if (!text) {
+    console.error('OpenRouter empty response:', data);
+    return { text: null, status: 500, details: data };
+  }
+  return { text, status: 200 };
+};
+
+const callGeminiDirect = async (
+  apiKey: string,
+  prompt: string,
+  config: GenerationConfig | undefined
+): Promise<LlmResult> => {
+  const response = await fetch(`${GEMINI_API_URL}/${GEMINI_MODEL}:generateContent`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': apiKey,
+    },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: config?.temperature ?? 0.1,
+        responseMimeType: config?.responseMimeType || 'text/plain',
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error('Gemini API error response:', errorData);
+    return { text: null, status: response.status, details: errorData };
+  }
+
+  const data = await response.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) {
+    console.error('Gemini empty response:', data);
+    return { text: null, status: 500, details: data };
+  }
+  return { text, status: 200 };
+};
+
 export const handler: Handler = async (event) => {
-  const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://2die4.hypeakz.io';
+  const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://liveactivated.org';
   const headers = {
     'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -39,74 +125,39 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
+    const openRouterKey = process.env.OPENROUTER_API_KEY;
+    const geminiKey = process.env.GEMINI_API_KEY;
+
+    if (!openRouterKey && !geminiKey) {
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: 'Missing GEMINI_API_KEY' })
+        body: JSON.stringify({ error: 'Missing OPENROUTER_API_KEY / GEMINI_API_KEY' })
       };
     }
 
-    // Build request body for Gemini REST API
-    const requestBody = {
-      contents: [
-        {
-          parts: [{ text: prompt }]
-        }
-      ],
-      generationConfig: {
-        temperature: config?.temperature ?? 0.1,
-        responseMimeType: config?.responseMimeType || 'text/plain',
-      }
-    };
+    const result = openRouterKey
+      ? await callOpenRouter(openRouterKey, prompt, config)
+      : await callGeminiDirect(geminiKey!, prompt, config);
 
-    // Call Gemini API directly (key via header to avoid log leakage)
-    const response = await fetch(
-      `${API_URL}/${MODEL}:generateContent`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey,
-        },
-        body: JSON.stringify(requestBody)
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Gemini API error response:', errorData);
+    if (result.text === null) {
       return {
-        statusCode: response.status,
+        statusCode: result.status,
         headers,
         body: JSON.stringify({
-          error: 'Gemini API request failed',
-          details: errorData
+          error: 'LLM API request failed',
+          details: result.details
         })
-      };
-    }
-
-    const data = await response.json();
-
-    // Extract text from Gemini response
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!text) {
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ error: 'Empty response from model', raw: data })
       };
     }
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ text: result.text })
     };
   } catch (error) {
-    console.error('Gemini proxy error:', error);
+    console.error('LLM proxy error:', error);
     return {
       statusCode: 500,
       headers,
