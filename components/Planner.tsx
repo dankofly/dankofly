@@ -580,18 +580,18 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
 
                 <div className="grid lg:grid-cols-12 gap-6 sm:gap-8">
                     <div className="lg:col-span-7 bg-white rounded-3xl shadow-xl border border-stone-200 overflow-hidden flex flex-col">
-                        <div className="bg-brand-light p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
-                            <div className="flex items-center gap-3 text-white font-bold text-xl"><ShoppingBag className="text-brand-accent" size={20} /> <span>{txt.results.shoppingList}</span></div>
-                            <div className="flex items-center gap-3">
-                                <span className="hidden xs:inline-block text-[11px] bg-brand-accent text-white px-3 py-1.5 rounded-lg font-black uppercase tracking-wide">{profile.duration} {txt.results.weekSupply}</span>
+                        <div className="bg-brand-light p-5 sm:p-6 flex flex-wrap items-center justify-between gap-3 shrink-0">
+                            <div className="flex items-center gap-3 text-white font-bold text-lg sm:text-xl min-w-0"><ShoppingBag className="text-brand-accent shrink-0" size={20} /> <span>{txt.results.shoppingList}</span></div>
+                            <div className="flex flex-wrap items-center gap-3">
+                                <span className="hidden md:inline-block text-[11px] bg-brand-accent text-white px-3 py-1.5 rounded-lg font-black uppercase tracking-wide whitespace-nowrap">{profile.duration} {txt.results.weekSupply}</span>
                                 {cartUrl && (
                                     <a
                                         href={cartUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="whimsy-cta flex items-center gap-2 bg-white text-brand-light hover:bg-brand-accent hover:text-white px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wide shadow-md transition-colors print:hidden"
+                                        className="whimsy-cta flex items-center gap-2 bg-white text-brand-light hover:bg-brand-accent hover:text-white px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wide shadow-md transition-colors print:hidden whitespace-nowrap"
                                     >
-                                        <ShoppingCart size={14} />
+                                        <ShoppingCart size={14} className="shrink-0" />
                                         {txt.results.addAllToCart}
                                     </a>
                                 )}
@@ -605,13 +605,23 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
                         <div className="whimsy-stagger p-4 sm:p-8 grid sm:grid-cols-2 gap-4 sm:gap-6 bg-stone-50/30 flex-1">
                             {shoppingList.map((item, idx) => (
                                 <div key={idx} className="whimsy-card flex flex-col p-4 rounded-2xl bg-white border border-stone-200 hover:border-brand-accent/50 hover:shadow-lg relative overflow-hidden">
-                                    <div className="flex justify-between items-start mb-2 relative z-10">
-                                        <span className="font-bold text-base sm:text-lg text-brand-light leading-tight">{item.name}</span>
-                                        <span className="text-[11px] sm:text-sm font-mono font-bold text-brand-accent bg-brand-accent/10 px-2 py-0.5 rounded-md">{item.amount}g</span>
+                                    <div className="flex justify-between items-start gap-2 relative z-10">
+                                        <span className="font-bold text-base sm:text-lg text-brand-light leading-tight min-w-0">{item.name}</span>
+                                        <span className="shrink-0 text-xs sm:text-sm font-mono font-bold text-brand-accent bg-brand-accent/10 px-2 py-0.5 rounded-md">{item.amount}g</span>
                                     </div>
-                                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-stone-100">
-                                        <div className="flex items-center gap-1.5 text-[11px] text-stone-500 font-bold uppercase tracking-wide"><Package size={12} /> <span>{txt.results.packRec}: <strong className="text-stone-900">{item.packRecommendation}</strong></span></div>
-                                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="bg-brand-light hover:bg-brand-accent text-white text-[11px] font-bold uppercase px-2.5 py-1 rounded-lg shadow-md shrink-0"><ShoppingCart size={10} /> Shop</a>
+                                    <div className="flex items-end justify-between gap-3 mt-3 pt-3 border-t border-stone-100">
+                                        <div className="min-w-0">
+                                            <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-stone-500"><Package size={12} /> {txt.results.packRec}</span>
+                                            <span className="block text-sm font-bold text-brand-light mt-0.5">{item.packRecommendation}</span>
+                                        </div>
+                                        <a
+                                            href={item.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="shrink-0 flex items-center gap-1.5 bg-brand-light hover:bg-brand-accent text-white text-xs font-bold uppercase tracking-wide px-3.5 py-2.5 rounded-xl shadow-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2"
+                                        >
+                                            <ShoppingCart size={14} /> Shop
+                                        </a>
                                     </div>
                                 </div>
                             ))}
