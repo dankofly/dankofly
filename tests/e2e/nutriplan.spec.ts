@@ -6,7 +6,7 @@ test.describe('NutriPlan App', () => {
   });
 
   test('should load homepage with correct title', async ({ page }) => {
-    await expect(page).toHaveTitle(/NutriPlan/);
+    await expect(page).toHaveTitle(/nutriplaner/i);
   });
 
   test('should display navigation tabs', async ({ page }) => {

@@ -266,7 +266,7 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
   const formatPlanAsText = useCallback((): string => {
     if (!plan) return '';
 
-    const header = `🥜 ${plan.title}\n\n${plan.strategy}\n\n`;
+    const header = `${plan.title}\n\n${plan.strategy}\n\n`;
 
     const days = plan.schedule.map(day => {
       const mixText = day.mix.map(item => `  • ${item}`).join('\n');
@@ -276,7 +276,7 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
     const shopping = shoppingList.map(item => `  • ${item.name}: ${item.amount}g`).join('\n');
     const shoppingText = `\n\n🛒 ${language === 'de' ? 'Einkaufsliste' : 'Shopping List'}:\n${shopping}`;
 
-    const footer = `\n\n${plan.summary}\n\n---\n${language === 'de' ? 'Erstellt mit' : 'Created with'} NutriPlan AI • 2die4livefoods.com`;
+    const footer = `\n\n${plan.summary}\n\n---\n${language === 'de' ? 'Erstellt mit' : 'Created with'} Nutriplaner by 2DiE4 Live Foods • liveactivated.org`;
 
     return header + days + shoppingText + footer;
   }, [plan, shoppingList, language]);
@@ -301,7 +301,7 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
   };
 
   const handleEmailShare = () => {
-    const subject = plan ? `${plan.title} - NutriPlan AI` : 'My NutriPlan';
+    const subject = plan ? `${plan.title} - Nutriplaner by 2DiE4 Live Foods` : 'Nutriplaner by 2DiE4 Live Foods';
     const body = planUrl
       ? `${txt.share.linkLabel}: ${planUrl}\n\n${formatPlanAsText()}`
       : formatPlanAsText();
@@ -313,7 +313,7 @@ const Planner: React.FC<PlannerProps> = ({ language, sharedPlan, sharedPlanNotFo
     if (typeof navigator.share === 'function') {
       try {
         await navigator.share({
-          title: plan?.title || 'NutriPlan',
+          title: plan?.title || 'Nutriplaner by 2DiE4 Live Foods',
           text: planUrl ? txt.share.teaser : formatPlanAsText(),
           ...(planUrl ? { url: planUrl } : {}),
         });

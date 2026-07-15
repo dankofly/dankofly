@@ -283,7 +283,7 @@ export const APP_CONTENT = {
           readMore: "Weiterlesen",
       },
       share: {
-          teaser: "Mein persönlicher Nuss-Wochenplan von NutriPlan AI 🥜",
+          teaser: "Mein persönlicher Nuss-Wochenplan von Nutriplaner by 2DiE4 Live Foods",
           linkLabel: "Plan ansehen",
       },
       sharedPlan: {
@@ -421,7 +421,7 @@ export const APP_CONTENT = {
           readMore: "Read more",
       },
       share: {
-          teaser: "My personal nut week plan from NutriPlan AI 🥜",
+          teaser: "My personal nut week plan from Nutriplaner by 2DiE4 Live Foods",
           linkLabel: "View plan",
       },
       sharedPlan: {
