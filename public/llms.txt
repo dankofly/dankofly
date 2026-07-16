@@ -6,7 +6,7 @@
 
 - [Nuss Nutri Planer (Deutsch)](https://liveactivated.org/de/): 7-Tage-Wochenplan nach Profil (Alter, Geschlecht, Lebensphase, Ziel), mit Tagesmischungen, Nährwert-Charts und Einkaufsliste
 - [Nut Nutri Planner (English)](https://liveactivated.org/en/): the same planner in English
-- [Nuss Nutri Rechner](https://liveactivated.org/de/): Nährwert-Rechner pro Nusssorte und Menge, Werte in % der empfohlenen Tagesdosis (RDA)
+- [Nuss Nährstoffe Rechner](https://liveactivated.org/de/#rechner): Nährwert-Rechner pro Nusssorte und Menge, Werte in % der empfohlenen Tagesdosis (RDA)
 - [2DiE4 Live Foods Shop](https://www.2die4livefoods.com/): aktivierte Bio-Nüsse kaufen (Versand DE/AT/EU)
 
 ## Fakten zu aktivierten Nüssen

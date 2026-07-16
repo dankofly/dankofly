@@ -37,8 +37,27 @@ const getLanguageFromPath = (): Language => {
   return path.startsWith('/en') ? 'en' : 'de';
 };
 
+// Shareable URL hash per tab, e.g. /de/#rechner. Planner ist Default (kein Hash).
+const TAB_TO_HASH: Record<Tab, string> = {
+  [Tab.PLANNER]: '',
+  [Tab.LIBRARY]: 'rechner',
+  [Tab.FAQ]: 'faq',
+  [Tab.SOURCES]: 'quellen',
+};
+
+const HASH_TO_TAB: Record<string, Tab> = {
+  rechner: Tab.LIBRARY,
+  calculator: Tab.LIBRARY,
+  faq: Tab.FAQ,
+  quellen: Tab.SOURCES,
+  sources: Tab.SOURCES,
+};
+
+const getTabFromHash = (): Tab =>
+  HASH_TO_TAB[window.location.hash.slice(1).toLowerCase()] ?? Tab.PLANNER;
+
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<Tab>(Tab.PLANNER);
+  const [activeTab, setActiveTab] = useState<Tab>(getTabFromHash);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [language, setLanguage] = useState<Language>(getLanguageFromPath);
   const [sharedPlan, setSharedPlan] = useState<StoredPlan | null>(null);
@@ -77,7 +96,7 @@ const App: React.FC = () => {
   const toggleLanguage = useCallback(() => {
     setLanguage(prev => {
       const next = prev === 'de' ? 'en' : 'de';
-      const newPath = `/${next}/`;
+      const newPath = `/${next}/${window.location.hash}`;
       window.history.pushState({ language: next }, '', newPath);
       return next;
     });
@@ -104,6 +123,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const handlePopState = () => {
       setLanguage(getLanguageFromPath());
+      setActiveTab(getTabFromHash());
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
@@ -112,6 +132,9 @@ const App: React.FC = () => {
   const handleTabChange = (tab: Tab) => {
     setActiveTab(tab);
     setMobileMenuOpen(false);
+    const hash = TAB_TO_HASH[tab];
+    const url = `${window.location.pathname}${window.location.search}${hash ? `#${hash}` : ''}`;
+    window.history.pushState({ tab }, '', url);
   };
 
   return (
@@ -134,48 +157,48 @@ const App: React.FC = () => {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-4">
               <button
-                onClick={() => setActiveTab(Tab.PLANNER)}
+                onClick={() => handleTabChange(Tab.PLANNER)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
                   activeTab === Tab.PLANNER 
-                    ? 'bg-brand-input text-brand-accent ring-1 ring-brand-accent' 
-                    : 'text-brand-muted hover:text-brand-light hover:bg-brand-input'
+                    ? 'bg-brand-accent text-brand-light font-semibold shadow-sm'
+                    : 'font-medium text-brand-light/70 hover:text-brand-light hover:bg-brand-input'
                 }`}
               >
                 <Brain size={18} />
-                <span className="font-medium">{txt.plannerTab}</span>
+                <span>{txt.plannerTab}</span>
               </button>
               <button
-                onClick={() => setActiveTab(Tab.LIBRARY)}
+                onClick={() => handleTabChange(Tab.LIBRARY)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
                   activeTab === Tab.LIBRARY
-                    ? 'bg-brand-input text-brand-accent ring-1 ring-brand-accent'
-                    : 'text-brand-muted hover:text-brand-light hover:bg-brand-input'
+                    ? 'bg-brand-accent text-brand-light font-semibold shadow-sm'
+                    : 'font-medium text-brand-light/70 hover:text-brand-light hover:bg-brand-input'
                 }`}
               >
                 <BookOpen size={18} />
-                <span className="font-medium">{txt.libraryTab}</span>
+                <span>{txt.libraryTab}</span>
               </button>
               <button
-                onClick={() => setActiveTab(Tab.FAQ)}
+                onClick={() => handleTabChange(Tab.FAQ)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
                   activeTab === Tab.FAQ
-                    ? 'bg-brand-input text-brand-accent ring-1 ring-brand-accent'
-                    : 'text-brand-muted hover:text-brand-light hover:bg-brand-input'
+                    ? 'bg-brand-accent text-brand-light font-semibold shadow-sm'
+                    : 'font-medium text-brand-light/70 hover:text-brand-light hover:bg-brand-input'
                 }`}
               >
                 <HelpCircle size={18} />
-                <span className="font-medium">{txt.faqTab}</span>
+                <span>{txt.faqTab}</span>
               </button>
               <button
-                onClick={() => setActiveTab(Tab.SOURCES)}
+                onClick={() => handleTabChange(Tab.SOURCES)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
                   activeTab === Tab.SOURCES
-                    ? 'bg-brand-input text-brand-accent ring-1 ring-brand-accent'
-                    : 'text-brand-muted hover:text-brand-light hover:bg-brand-input'
+                    ? 'bg-brand-accent text-brand-light font-semibold shadow-sm'
+                    : 'font-medium text-brand-light/70 hover:text-brand-light hover:bg-brand-input'
                 }`}
               >
                 <FileText size={18} />
-                <span className="font-medium">{txt.sourcesTab}</span>
+                <span>{txt.sourcesTab}</span>
               </button>
 
               <div className="h-6 w-px bg-brand-border mx-2"></div>
@@ -187,9 +210,9 @@ const App: React.FC = () => {
                 title={language === 'de' ? 'Switch to English' : 'Zu Deutsch wechseln'}
               >
                 <Globe size={18} className="whimsy-lang-flip text-brand-muted" />
-                <span className={language === 'de' ? 'text-brand-accent' : 'text-brand-muted hover:text-brand-light'}>DE</span>
+                <span className={language === 'de' ? 'text-brand-light underline decoration-brand-accent decoration-2 underline-offset-4' : 'text-brand-muted hover:text-brand-light'}>DE</span>
                 <span className="text-brand-border">|</span>
-                <span className={language === 'en' ? 'text-brand-accent' : 'text-brand-muted hover:text-brand-light'}>EN</span>
+                <span className={language === 'en' ? 'text-brand-light underline decoration-brand-accent decoration-2 underline-offset-4' : 'text-brand-muted hover:text-brand-light'}>EN</span>
               </button>
             </div>
 
@@ -201,9 +224,9 @@ const App: React.FC = () => {
                     title={language === 'de' ? 'Switch to English' : 'Zu Deutsch wechseln'}
                 >
                     <Globe size={18} className="text-brand-muted" />
-                    <span className={language === 'de' ? 'text-brand-accent' : 'text-brand-muted'}>DE</span>
+                    <span className={language === 'de' ? 'text-brand-light underline decoration-brand-accent decoration-2 underline-offset-4' : 'text-brand-muted'}>DE</span>
                     <span className="text-brand-border">|</span>
-                    <span className={language === 'en' ? 'text-brand-accent' : 'text-brand-muted'}>EN</span>
+                    <span className={language === 'en' ? 'text-brand-light underline decoration-brand-accent decoration-2 underline-offset-4' : 'text-brand-muted'}>EN</span>
                 </button>
                 <button 
                     onClick={() => setMobileMenuOpen(true)}
@@ -250,10 +273,10 @@ const App: React.FC = () => {
         <div className="flex-1 overflow-y-auto p-6 space-y-2">
              <button
                 onClick={() => handleTabChange(Tab.PLANNER)}
-                className={`w-full flex items-center justify-between p-4 rounded-xl text-lg font-medium transition-all duration-200 border ${
+                className={`w-full flex items-center justify-between p-4 rounded-xl text-lg transition-all duration-200 border ${
                 activeTab === Tab.PLANNER 
-                    ? 'bg-brand-input border-brand-accent text-brand-accent shadow-sm' 
-                    : 'bg-white border-transparent text-brand-muted hover:bg-stone-50 hover:text-brand-light'
+                    ? 'bg-brand-accent border-brand-accent text-brand-light font-semibold shadow-sm'
+                    : 'font-medium bg-white border-transparent text-brand-light/70 hover:bg-stone-50 hover:text-brand-light'
                 }`}
             >
                 <div className="flex items-center gap-4">
@@ -265,10 +288,10 @@ const App: React.FC = () => {
 
             <button
                 onClick={() => handleTabChange(Tab.LIBRARY)}
-                className={`w-full flex items-center justify-between p-4 rounded-xl text-lg font-medium transition-all duration-200 border ${
+                className={`w-full flex items-center justify-between p-4 rounded-xl text-lg transition-all duration-200 border ${
                 activeTab === Tab.LIBRARY
-                    ? 'bg-brand-input border-brand-accent text-brand-accent shadow-sm'
-                    : 'bg-white border-transparent text-brand-muted hover:bg-stone-50 hover:text-brand-light'
+                    ? 'bg-brand-accent border-brand-accent text-brand-light font-semibold shadow-sm'
+                    : 'font-medium bg-white border-transparent text-brand-light/70 hover:bg-stone-50 hover:text-brand-light'
                 }`}
             >
                 <div className="flex items-center gap-4">
@@ -280,10 +303,10 @@ const App: React.FC = () => {
 
             <button
                 onClick={() => handleTabChange(Tab.FAQ)}
-                className={`w-full flex items-center justify-between p-4 rounded-xl text-lg font-medium transition-all duration-200 border ${
+                className={`w-full flex items-center justify-between p-4 rounded-xl text-lg transition-all duration-200 border ${
                 activeTab === Tab.FAQ
-                    ? 'bg-brand-input border-brand-accent text-brand-accent shadow-sm'
-                    : 'bg-white border-transparent text-brand-muted hover:bg-stone-50 hover:text-brand-light'
+                    ? 'bg-brand-accent border-brand-accent text-brand-light font-semibold shadow-sm'
+                    : 'font-medium bg-white border-transparent text-brand-light/70 hover:bg-stone-50 hover:text-brand-light'
                 }`}
             >
                 <div className="flex items-center gap-4">
@@ -295,10 +318,10 @@ const App: React.FC = () => {
 
             <button
                 onClick={() => handleTabChange(Tab.SOURCES)}
-                className={`w-full flex items-center justify-between p-4 rounded-xl text-lg font-medium transition-all duration-200 border ${
+                className={`w-full flex items-center justify-between p-4 rounded-xl text-lg transition-all duration-200 border ${
                 activeTab === Tab.SOURCES
-                    ? 'bg-brand-input border-brand-accent text-brand-accent shadow-sm'
-                    : 'bg-white border-transparent text-brand-muted hover:bg-stone-50 hover:text-brand-light'
+                    ? 'bg-brand-accent border-brand-accent text-brand-light font-semibold shadow-sm'
+                    : 'font-medium bg-white border-transparent text-brand-light/70 hover:bg-stone-50 hover:text-brand-light'
                 }`}
             >
                 <div className="flex items-center gap-4">

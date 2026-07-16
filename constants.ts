@@ -170,7 +170,7 @@ export const APP_CONTENT = {
   de: {
     general: {
       plannerTab: "Nuss Nutri Planer",
-      libraryTab: "Nuss Nutri Rechner",
+      libraryTab: "Nuss Nährstoffe Rechner",
       faqTab: "FAQ's",
       sourcesTab: "Quellen",
       plannerHeader: "Dein natürlicher Nährstoff-Plan",
@@ -310,7 +310,7 @@ export const APP_CONTENT = {
   en: {
     general: {
       plannerTab: "Nut Nutri Planner",
-      libraryTab: "Nut Nutri Calculator",
+      libraryTab: "Nut Nutrient Calculator",
       faqTab: "FAQ's",
       sourcesTab: "Sources",
       plannerHeader: "Your Natural Nutrient Plan",
