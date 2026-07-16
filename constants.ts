@@ -214,7 +214,7 @@ export const APP_CONTENT = {
         excellent: 'Ein Superfood für dein Mikrobiom. Maximaler Ballaststoffgehalt & präbiotische Power.',
         veryGood: 'Hervorragend verträglich. Unterstützt aktiv eine gesunde Darmflora.',
         good: 'Sehr gut verträglich. Durch die Aktivierung besonders schonend zur Verdauung.',
-        standard: 'Gut verträglich. Aktivierung reduziert Blähbauch-Risiko signifikant.'
+        standard: 'Gut verträglich. Aktivierung reduziert das Blähbauch-Risiko.'
       },
       chartTitle: "Detailliertes Nährstoffprofil",
     },
@@ -354,7 +354,7 @@ export const APP_CONTENT = {
         excellent: 'A superfood for your microbiome. Maximum fibre content & prebiotic power.',
         veryGood: 'Excellently tolerated. Actively supports a healthy gut flora.',
         good: 'Very well tolerated. Particularly gentle on digestion due to activation.',
-        standard: 'Well tolerated. Activation significantly reduces risk of bloating.'
+        standard: 'Well tolerated. Activation reduces the risk of bloating.'
       },
       chartTitle: "Detailed Nutrient Profile",
     },
